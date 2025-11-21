@@ -16,11 +16,15 @@ return new class extends Migration
             $table->string('tenant_id')->index();
             $table->foreignId('candidate_id')->constrained()->cascadeOnDelete();
             $table->string('category');
+            $table->string('category_bn')->nullable();
             $table->string('name');
+            $table->string('name_bn')->nullable();
             $table->string('designation')->nullable();
             $table->string('organization')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->string('address')->nullable();
+            $table->string('address_bn')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->unsignedTinyInteger('priority')->default(3);
             $table->text('notes')->nullable();

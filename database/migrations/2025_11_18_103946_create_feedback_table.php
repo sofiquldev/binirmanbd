@@ -18,10 +18,13 @@ return new class extends Migration
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
 
             $table->string('name')->nullable();
+            $table->string('name_bn')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('category');
+            $table->string('category_bn')->nullable();
             $table->text('description');
+            $table->text('description_bn')->nullable();
             $table->enum('status', ['new', 'in_review', 'assigned', 'resolved'])->default('new');
             $table->string('attachment_path')->nullable();
             $table->timestamp('escalated_at')->nullable();

@@ -15,14 +15,22 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Tenant::class, 'tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->string('name');
+            $table->string('name_bn')->nullable();
             $table->string('slug')->unique();
             $table->string('constituency');
+            $table->string('constituency_bn')->nullable();
             $table->string('party')->nullable();
+            $table->string('party_bn')->nullable();
             $table->unsignedBigInteger('template_id')->nullable();
             $table->string('campaign_slogan')->nullable();
+            $table->string('campaign_slogan_bn')->nullable();
             $table->text('campaign_goals')->nullable();
+            $table->text('campaign_goals_bn')->nullable();
             $table->string('primary_domain')->nullable();
             $table->string('custom_domain')->nullable();
+            $table->string('whatsapp_number')->nullable();
+            $table->boolean('translator_enabled')->default(true);
+            $table->json('supported_languages')->nullable();
             $table->timestamps();
         });
     }

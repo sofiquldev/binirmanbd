@@ -79,10 +79,13 @@ return new class extends Migration
             $table->string('tenant_id')->index();
             $table->foreignId('candidate_id')->constrained()->cascadeOnDelete();
             $table->string('title');
+            $table->string('title_bn')->nullable();
             $table->text('description')->nullable();
+            $table->text('description_bn')->nullable();
             $table->timestamp('starts_at');
             $table->timestamp('ends_at')->nullable();
             $table->string('location')->nullable();
+            $table->string('location_bn')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->string('map_url')->nullable();
@@ -153,6 +156,7 @@ return new class extends Migration
             $table->string('tenant_id')->index();
             $table->foreignId('candidate_id')->constrained()->cascadeOnDelete();
             $table->string('question');
+            $table->string('question_bn')->nullable();
             $table->boolean('allows_multiple')->default(false);
             $table->enum('status', ['draft', 'published', 'closed'])->default('published');
             $table->timestamp('expires_at')->nullable();
@@ -163,6 +167,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('poll_id')->constrained('polls')->cascadeOnDelete();
             $table->string('label');
+            $table->string('option_text')->nullable();
+            $table->string('option_text_bn')->nullable();
             $table->unsignedBigInteger('votes')->default(0);
             $table->timestamps();
         });
@@ -208,8 +214,11 @@ return new class extends Migration
             $table->string('tenant_id')->index();
             $table->foreignId('candidate_id')->constrained()->cascadeOnDelete();
             $table->string('name');
+            $table->string('author_name_bn')->nullable();
             $table->string('designation')->nullable();
+            $table->string('author_designation_bn')->nullable();
             $table->text('quote');
+            $table->text('content_bn')->nullable();
             $table->string('avatar_url')->nullable();
             $table->boolean('is_featured')->default(true);
             $table->timestamps();

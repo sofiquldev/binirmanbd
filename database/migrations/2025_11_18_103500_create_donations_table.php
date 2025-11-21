@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // creator (for offline entries)
 
             $table->string('donor_name');
+            $table->string('donor_name_bn')->nullable();
             $table->string('donor_id_number')->nullable();
             $table->string('donor_phone')->nullable();
             $table->string('donor_email')->nullable();

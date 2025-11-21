@@ -24,6 +24,13 @@ class DatabaseSeeder extends Seeder
         $volunteer      = Role::firstOrCreate(['name' => User::ROLE_VOLUNTEER, 'guard_name' => 'web']);
 
         $this->call(TemplateSeeder::class);
+        $this->call(CandidatesSeeder::class);
+        $this->call(DonationsSeeder::class);
+        $this->call(ObjectionsSeeder::class);
+        $this->call(EventsSeeder::class);
+        $this->call(PollsSeeder::class);
+        $this->call(ContactsSeeder::class);
+        $this->call(TestimonialsSeeder::class);
 
         // Create initial Super Admin
         $admin = User::query()->firstOrCreate(

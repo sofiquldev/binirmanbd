@@ -27,6 +27,12 @@ Route::middleware([
     Route::view('/donations', 'candidate.donations')->name('donations');
     Route::view('/feedback', 'candidate.feedback')->name('feedback');
     Route::view('/contacts', 'candidate.contacts')->name('contacts');
+    Route::view('/knowledge', 'candidate.knowledge')->name('knowledge');
+    Route::view('/appointments', 'candidate.appointments')->name('appointments');
+    Route::view('/announcements', 'candidate.announcements')->name('announcements');
+    Route::view('/events', 'candidate.events')->name('events');
+    Route::view('/polls', 'candidate.polls')->name('polls');
+    Route::view('/engagement', 'candidate.engagement')->name('engagement');
 });
 
 Route::view('profile', 'profile')

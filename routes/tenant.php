@@ -48,4 +48,19 @@ Route::middleware([
             'candidate' => $candidate,
         ]);
     })->name('tenant.feedback');
+
+    Route::get('/appointments', function () {
+        $candidate = Candidate::where('tenant_id', tenant('id'))->firstOrFail();
+        return view('tenant.appointments', ['candidate' => $candidate]);
+    })->name('tenant.appointments');
+
+    Route::get('/events', function () {
+        $candidate = Candidate::where('tenant_id', tenant('id'))->firstOrFail();
+        return view('tenant.events', ['candidate' => $candidate]);
+    })->name('tenant.events');
+
+    Route::get('/contact', function () {
+        $candidate = Candidate::where('tenant_id', tenant('id'))->firstOrFail();
+        return view('tenant.contact', ['candidate' => $candidate]);
+    })->name('tenant.contact');
 });
