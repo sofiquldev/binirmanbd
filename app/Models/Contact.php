@@ -12,12 +12,15 @@ class Contact extends Model
     protected $fillable = [
         'tenant_id',
         'candidate_id',
-        'category',
+        'category_id',
+        'organization_id',
         'name',
+        'name_bn',
         'designation',
-        'organization',
         'phone',
         'email',
+        'address',
+        'address_bn',
         'is_verified',
         'priority',
         'notes',
@@ -33,5 +36,15 @@ class Contact extends Model
     public function candidate()
     {
         return $this->belongsTo(Candidate::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ContactCategory::class);
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 }

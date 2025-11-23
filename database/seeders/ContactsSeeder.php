@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Candidate;
 use App\Models\Contact;
+use App\Models\ContactCategory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ContactsSeeder extends Seeder
 {
@@ -21,12 +23,26 @@ class ContactsSeeder extends Seeder
             ['en' => 'Local Government', 'bn' => 'স্থানীয় সরকার'],
         ];
 
+        // Create or get contact categories
+        $categoryMap = [];
+        foreach ($contactCategories as $categoryData) {
+            $slug = Str::slug($categoryData['en']);
+            $category = ContactCategory::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $categoryData['en'],
+                    'name_bn' => $categoryData['bn'],
+                    'is_active' => true,
+                ]
+            );
+            $categoryMap[$categoryData['en']] = $category->id;
+        }
+
         $baseContacts = [
             [
                 'name' => 'Election Commission Office',
                 'name_bn' => 'নির্বাচন কমিশন অফিস',
                 'category' => 'Election Commission',
-                'category_bn' => 'নির্বাচন কমিশন',
                 'phone' => '+880-2-9112000',
                 'email' => 'info@ecs.gov.bd',
                 'address' => 'Agargaon, Dhaka',
@@ -36,7 +52,6 @@ class ContactsSeeder extends Seeder
                 'name' => 'Dhaka Medical College Hospital',
                 'name_bn' => 'ঢাকা মেডিকেল কলেজ হাসপাতাল',
                 'category' => 'Hospital',
-                'category_bn' => 'হাসপাতাল',
                 'phone' => '+880-2-55165000',
                 'email' => 'info@dmch.gov.bd',
                 'address' => 'Dhaka Medical College, Dhaka',
@@ -46,7 +61,6 @@ class ContactsSeeder extends Seeder
                 'name' => 'Central Police Station',
                 'name_bn' => 'সেন্ট্রাল পুলিশ স্টেশন',
                 'category' => 'Police Station',
-                'category_bn' => 'পুলিশ স্টেশন',
                 'phone' => '+880-2-9330000',
                 'email' => null,
                 'address' => 'Dhanmondi, Dhaka',
@@ -60,10 +74,9 @@ class ContactsSeeder extends Seeder
                 Contact::create([
                     'tenant_id' => $candidate->tenant_id,
                     'candidate_id' => $candidate->id,
+                    'category_id' => $categoryMap[$contactData['category']],
                     'name' => $contactData['name'],
                     'name_bn' => $contactData['name_bn'],
-                    'category' => $contactData['category'],
-                    'category_bn' => $contactData['category_bn'],
                     'phone' => $contactData['phone'],
                     'email' => $contactData['email'],
                     'address' => $contactData['address'],
@@ -75,13 +88,14 @@ class ContactsSeeder extends Seeder
             // Add random contacts
             for ($i = 0; $i < 3; $i++) {
                 $category = fake()->randomElement($contactCategories);
+                $categoryId = $categoryMap[$category['en']];
+                
                 Contact::create([
                     'tenant_id' => $candidate->tenant_id,
                     'candidate_id' => $candidate->id,
+                    'category_id' => $categoryId,
                     'name' => fake()->company() . ' ' . $category['en'],
                     'name_bn' => fake()->company() . ' ' . $category['bn'],
-                    'category' => $category['en'],
-                    'category_bn' => $category['bn'],
                     'phone' => '+880' . fake()->numerify('#########'),
                     'email' => fake()->email(),
                     'address' => fake()->address(),

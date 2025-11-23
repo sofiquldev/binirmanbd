@@ -25,6 +25,11 @@ class Template extends Model
             'is_active' => 'boolean',
         ];
     }
+
+    public function candidates()
+    {
+        return $this->hasMany(Candidate::class);
+    }
 }
 
 

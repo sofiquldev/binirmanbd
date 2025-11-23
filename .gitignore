@@ -16,7 +16,11 @@
 /public/build
 /public/hot
 /public/storage
+/public/metronic-react-demo
+/public/metronic-react-next-js-starter-kit
+/public/metronic-react-starter-kit
 /public/metronic-tailwind-html-demos
+/public/metronic-tailwind-html-starter-kit
 /storage/*.key
 /storage/pail
 /vendor

@@ -13,19 +13,11 @@ class ContactController extends Controller
     {
         $candidate = Candidate::where('tenant_id', tenant('id'))->firstOrFail();
 
-        $contacts = Contact::where('candidate_id', $candidate->id)
+        $contacts = Contact::with(['category', 'organization'])
+            ->where('candidate_id', $candidate->id)
             ->orderBy('priority')
             ->orderBy('name')
-            ->get([
-                'category',
-                'name',
-                'designation',
-                'organization',
-                'phone',
-                'email',
-                'is_verified',
-                'notes',
-            ]);
+            ->get();
 
         return response()->json([
             'data' => $contacts,

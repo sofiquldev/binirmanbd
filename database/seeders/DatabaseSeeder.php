@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,12 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create core roles
-        $superAdmin     = Role::firstOrCreate(['name' => User::ROLE_SUPER_ADMIN, 'guard_name' => 'web']);
-        $candidateAdmin = Role::firstOrCreate(['name' => User::ROLE_CANDIDATE_ADMIN, 'guard_name' => 'web']);
-        $teamMember     = Role::firstOrCreate(['name' => User::ROLE_TEAM_MEMBER, 'guard_name' => 'web']);
-        $volunteer      = Role::firstOrCreate(['name' => User::ROLE_VOLUNTEER, 'guard_name' => 'web']);
+        // Seed Tyro roles first
+        $this->call(TyroRolesSeeder::class);
+        
+        // Seed Tyro privileges and attach to roles
+        $this->call(TyroPrivilegesSeeder::class);
+        
+        // Seed users
+        $this->call(UserSeeder::class);
 
+        // Then seed other data
         $this->call(TemplateSeeder::class);
         $this->call(CandidatesSeeder::class);
         $this->call(DonationsSeeder::class);
@@ -31,18 +34,5 @@ class DatabaseSeeder extends Seeder
         $this->call(PollsSeeder::class);
         $this->call(ContactsSeeder::class);
         $this->call(TestimonialsSeeder::class);
-
-        // Create initial Super Admin
-        $admin = User::query()->firstOrCreate(
-            ['email' => 'admin@binirmanbd.com'],
-            [
-                'name' => 'Binirman BD Super Admin',
-                'password' => Hash::make('password'),
-            ]
-        );
-
-        if (! $admin->hasRole($superAdmin->name)) {
-            $admin->assignRole($superAdmin);
-        }
     }
 }

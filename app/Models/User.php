@@ -3,16 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use HasinHayder\Tyro\Concerns\HasTyroRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasTyroRoles;
 
+    // Tyro role slugs (these will be seeded by Tyro)
     public const ROLE_SUPER_ADMIN      = 'super-admin';
     public const ROLE_CANDIDATE_ADMIN  = 'candidate-admin';
     public const ROLE_TEAM_MEMBER      = 'team-member';

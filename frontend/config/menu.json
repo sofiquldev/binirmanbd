@@ -1,0 +1,211 @@
+{
+  "menu": [
+    {
+      "title": "Dashboard",
+      "icon": "LayoutGrid",
+      "path": "/dashboard"
+    },
+    {
+      "heading": "Candidate"
+    },
+    {
+      "title": "Templates",
+      "icon": "FileText",
+      "path": "/candidate/templates",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Donations",
+      "icon": "Wallet",
+      "path": "/candidate/donations",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Feedback",
+      "icon": "MessageSquare",
+      "path": "/candidate/feedback",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Contacts",
+      "icon": "Users",
+      "path": "/candidate/contacts",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Knowledge",
+      "icon": "Book",
+      "path": "/candidate/knowledge",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Appointments",
+      "icon": "Calendar",
+      "path": "/candidate/appointments",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Announcements",
+      "icon": "Megaphone",
+      "path": "/candidate/announcements",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Events",
+      "icon": "CalendarCheck",
+      "path": "/candidate/events",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Polls",
+      "icon": "BarChart3",
+      "path": "/candidate/polls",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "title": "Engagement",
+      "icon": "BarChart3",
+      "path": "/candidate/engagement",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
+      "heading": "Admin"
+    },
+    {
+      "title": "Admin Dashboard",
+      "icon": "LayoutGrid",
+      "path": "/admin/dashboard",
+      "roles": ["super-admin"]
+    },
+    {
+      "title": "Candidates",
+      "icon": "Users",
+      "roles": ["super-admin"],
+      "children": [
+        {
+          "title": "All Candidates",
+          "path": "/admin/candidates",
+          "privileges": ["candidates.view"]
+        },
+        {
+          "title": "Create Candidate",
+          "path": "/admin/candidates/create",
+          "privileges": ["candidates.create"]
+        },
+        {
+          "title": "Parties",
+          "path": "/admin/parties",
+          "privileges": ["parties.view"]
+        },
+        {
+          "title": "Constituencies",
+          "path": "/admin/constituencies",
+          "privileges": ["constituencies.view"]
+        }
+      ]
+    },
+    {
+      "title": "Users",
+      "icon": "UserCircle",
+      "path": "/admin/users",
+      "privileges": ["users.view"]
+    },
+    {
+      "title": "Templates",
+      "icon": "FileText",
+      "path": "/admin/templates",
+      "privileges": ["templates.view"]
+    },
+    {
+      "title": "Donations",
+      "icon": "Wallet",
+      "path": "/admin/donations",
+      "privileges": ["donations.view"]
+    },
+    {
+      "title": "Feedback",
+      "icon": "MessageSquare",
+      "path": "/admin/feedback",
+      "privileges": ["feedback.view"]
+    },
+    {
+      "title": "Contacts",
+      "icon": "Users",
+      "path": "/admin/contacts",
+      "privileges": ["contacts.view"]
+    },
+    {
+      "title": "Events",
+      "icon": "CalendarCheck",
+      "path": "/admin/events",
+      "privileges": ["events.view"]
+    },
+    {
+      "title": "Polls",
+      "icon": "BarChart3",
+      "path": "/admin/polls",
+      "privileges": ["polls.view"]
+    },
+    {
+      "title": "Announcements",
+      "icon": "Megaphone",
+      "path": "/admin/announcements",
+      "privileges": ["announcements.view"]
+    },
+    {
+      "title": "Appointments",
+      "icon": "Calendar",
+      "path": "/admin/appointments",
+      "privileges": ["appointments.view"]
+    },
+    {
+      "title": "Knowledge Base",
+      "icon": "Book",
+      "path": "/admin/knowledge",
+      "privileges": ["knowledge.view"]
+    },
+    {
+      "title": "Engagement",
+      "icon": "BarChart3",
+      "path": "/admin/engagement",
+      "privileges": ["engagement.view"]
+    },
+    {
+      "title": "Settings",
+      "icon": "Settings",
+      "path": "/admin/settings",
+      "privileges": ["settings.view"],
+      "children": [
+        {
+          "title": "General",
+          "path": "/admin/settings/general",
+          "privileges": ["settings.general"]
+        },
+        {
+          "title": "System",
+          "path": "/admin/settings/system",
+          "privileges": ["settings.system"]
+        },
+        {
+          "title": "Roles & Permissions",
+          "path": "/admin/settings/roles",
+          "privileges": ["settings.roles"]
+        },
+        {
+          "title": "Email",
+          "path": "/admin/settings/email",
+          "privileges": ["settings.email"]
+        }
+      ]
+    },
+    {
+      "heading": "Account"
+    },
+    {
+      "title": "Profile",
+      "icon": "UserCircle",
+      "path": "/profile"
+    }
+  ]
+}
+

@@ -11,7 +11,7 @@ class EventsSeeder extends Seeder
 {
     public function run(): void
     {
-        $candidates = Candidate::all();
+        $candidates = Candidate::with('constituency')->get();
         $eventTypes = [
             ['en' => 'Campaign Rally', 'bn' => 'প্রচার সমাবেশ'],
             ['en' => 'Public Debate', 'bn' => 'পাবলিক বিতর্ক'],
@@ -29,13 +29,17 @@ class EventsSeeder extends Seeder
                 $eventTime = fake()->time('H:i');
                 $startsAt = \Carbon\Carbon::parse($eventDate)->setTimeFromTimeString($eventTime);
                 
+                // Get constituency name from relationship
+                $constituencyName = $candidate->constituency?->name ?? 'the constituency';
+                $constituencyNameBn = $candidate->constituency?->name_bn ?? 'আসন';
+                
                 $event = CampaignEvent::create([
                     'tenant_id' => $candidate->tenant_id,
                     'candidate_id' => $candidate->id,
-                    'title' => $type['en'] . ' - ' . $candidate->constituency,
-                    'title_bn' => $type['bn'] . ' - ' . $candidate->constituency_bn,
-                    'description' => 'Join us for an important campaign event in ' . $candidate->constituency . '.',
-                    'description_bn' => $candidate->constituency_bn . ' এ একটি গুরুত্বপূর্ণ প্রচার অনুষ্ঠানে যোগ দিন।',
+                    'title' => $type['en'] . ' - ' . $constituencyName,
+                    'title_bn' => $type['bn'] . ' - ' . $constituencyNameBn,
+                    'description' => 'Join us for an important campaign event in ' . $constituencyName . '.',
+                    'description_bn' => $constituencyNameBn . ' এ একটি গুরুত্বপূর্ণ প্রচার অনুষ্ঠানে যোগ দিন।',
                     'starts_at' => $startsAt,
                     'ends_at' => $startsAt->copy()->addHours(2),
                     'location' => fake()->address(),

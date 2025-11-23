@@ -17,15 +17,18 @@ class Candidate extends Model
         'name',
         'name_bn',
         'slug',
-        'constituency',
-        'constituency_bn',
-        'party',
-        'party_bn',
+        'image',
+        'constituency_id',
+        'party_id',
         'template_id',
         'campaign_slogan',
         'campaign_slogan_bn',
         'campaign_goals',
         'campaign_goals_bn',
+        'about',
+        'about_bn',
+        'history',
+        'history_bn',
         'primary_domain',
         'custom_domain',
         'whatsapp_number',
@@ -119,6 +122,21 @@ class Candidate extends Model
     public function testimonials()
     {
         return $this->hasMany(Testimonial::class);
+    }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    public function party()
+    {
+        return $this->belongsTo(Party::class);
+    }
+
+    public function constituency()
+    {
+        return $this->belongsTo(Constituency::class);
     }
 }
 
