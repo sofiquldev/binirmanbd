@@ -124,6 +124,25 @@
   *:focus-visible {
     @apply outline-ring rounded-xs shadow-none outline-2 outline-offset-3 transition-none!;
   }
+
+  html,
+  body {
+    font-family: var(--font-noto-sans-bengali), sans-serif;
+  }
+
+  body,
+  input,
+  textarea,
+  select,
+  button {
+    font-family: var(--font-noto-sans-bengali), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  p, span, div, a, li, td, th,
+  label, small, strong, em, b, i {
+    font-family: var(--font-noto-sans-bengali), sans-serif;
+  }
 }
 
 /** Custom Scrollbar **/

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Sans_Bengali } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/sonner';
@@ -8,6 +8,11 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
+const notoSansBengali = Noto_Sans_Bengali({ 
+  subsets: ['bengali'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-noto-sans-bengali',
+});
 
 export const metadata = {
   title: {
@@ -18,12 +23,22 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   return (
-    <html className="h-full" suppressHydrationWarning>
+    <html 
+      className={cn('h-full', notoSansBengali.variable)} 
+      suppressHydrationWarning
+      style={{
+        fontFamily: 'var(--font-noto-sans-bengali), sans-serif',
+      }}
+    >
       <body
         className={cn(
           'antialiased flex h-full text-base text-foreground bg-background',
-          inter.className,
+          notoSansBengali.className,
+          notoSansBengali.variable,
         )}
+        style={{
+          fontFamily: 'var(--font-noto-sans-bengali), sans-serif',
+        }}
       >
         <ThemeProvider
           attribute="class"

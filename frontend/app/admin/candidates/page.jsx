@@ -12,6 +12,8 @@ import { DataGridPagination } from '@/components/ui/data-grid-pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Eye, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getAvatarProps } from '@/lib/utils/avatar';
 
 export default function CandidatesPage() {
   const router = useRouter();
@@ -40,40 +42,40 @@ export default function CandidatesPage() {
 
   const columns = useMemo(() => [
     {
-      accessorKey: 'image',
-      header: 'Image',
+      accessorKey: 'name',
+      header: 'Name',
       cell: ({ row }) => {
         const candidate = row.original;
+        const avatarUser = {
+          name: candidate.name,
+          // Use slug or id to generate a stable gravatar hash if no image
+          email: candidate.slug || String(candidate.id || candidate.name || ''),
+          image: candidate.image,
+        };
+        const avatarProps = getAvatarProps(avatarUser, { size: 40, gravatarType: 'mp' });
+
         return (
-          <div className="flex items-center">
-            {candidate.image ? (
-              <img
-                src={candidate.image}
-                alt={candidate.name}
-                className="size-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="size-10 rounded-full bg-accent/60 flex items-center justify-center">
-                <span className="text-sm font-semibold">
-                  {candidate.name?.charAt(0) || 'C'}
-                </span>
-              </div>
-            )}
+          <div className="flex items-center gap-3">
+            <Avatar className="size-10">
+              {avatarProps.src && (
+                <AvatarImage 
+                  src={avatarProps.src} 
+                  alt={avatarProps.alt} 
+                />
+              )}
+              <AvatarFallback>
+                {avatarProps.initials}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium">{candidate.name || 'N/A'}</div>
+              {candidate.name_bn && (
+                <div className="text-sm text-secondary-foreground">{candidate.name_bn}</div>
+              )}
+            </div>
           </div>
         );
       },
-    },
-    {
-      accessorKey: 'name',
-      header: 'Name',
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.original.name}</div>
-          {row.original.name_bn && (
-            <div className="text-sm text-secondary-foreground">{row.original.name_bn}</div>
-          )}
-        </div>
-      ),
     },
     {
       accessorKey: 'party',
@@ -144,9 +146,11 @@ export default function CandidatesPage() {
 
   if (loading && candidates.length === 0) {
     return (
-      <div className="grid gap-5">
-        <Skeleton className="h-12" />
-        <Skeleton className="h-96" />
+      <div className="container">
+        <div className="grid gap-5">
+          <Skeleton className="h-12" />
+          <Skeleton className="h-96" />
+        </div>
       </div>
     );
   }

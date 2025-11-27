@@ -31,6 +31,10 @@ return new class extends Migration
             $table->timestamp('resolved_at')->nullable();
             $table->text('resolution_notes')->nullable();
             $table->json('meta')->nullable();
+            $table->unsignedInteger('likes')->default(0);
+            $table->unsignedInteger('dislikes')->default(0);
+            $table->unsignedInteger('views')->default(0);
+            $table->boolean('is_visible')->default(true);
 
             $table->timestamps();
         });

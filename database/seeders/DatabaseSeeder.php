@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
 
         // Then seed other data
+        $this->call(DistrictsSeeder::class);
         $this->call(TemplateSeeder::class);
         $this->call(CandidatesSeeder::class);
         $this->call(DonationsSeeder::class);

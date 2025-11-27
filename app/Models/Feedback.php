@@ -19,16 +19,23 @@ class Feedback extends Model
         'candidate_id',
         'assigned_to',
         'name',
+        'name_bn',
         'phone',
         'email',
         'category',
+        'category_bn',
         'description',
+        'description_bn',
         'status',
         'attachment_path',
         'escalated_at',
         'resolved_at',
         'resolution_notes',
         'meta',
+        'likes',
+        'dislikes',
+        'views',
+        'is_visible',
     ];
 
     protected function casts(): array
@@ -37,6 +44,7 @@ class Feedback extends Model
             'meta' => 'array',
             'escalated_at' => 'datetime',
             'resolved_at' => 'datetime',
+            'is_visible' => 'boolean',
         ];
     }
 
@@ -48,5 +56,10 @@ class Feedback extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

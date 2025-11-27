@@ -13,8 +13,7 @@ class Constituency extends Model
         'name',
         'name_bn',
         'slug',
-        'district',
-        'district_bn',
+        'district_id',
         'about',
         'about_bn',
         'history',
@@ -30,6 +29,11 @@ class Constituency extends Model
             'boundaries' => 'array',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
     }
 
     public function candidates()

@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\ConstituencyController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DonationController;
+use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\FeedbackController;
+use App\Http\Controllers\Api\FeedbackAdminController;
 use App\Http\Controllers\Api\FeedController;
 use App\Http\Controllers\Api\PartyController;
 use App\Http\Controllers\Api\TemplateController;
@@ -25,6 +27,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('/auth/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 
+    // Public feedback submission (by candidate ID, no tenancy required)
+    Route::post('/feedback/public', [FeedbackController::class, 'storePublic']);
+
     // Tenant-specific public routes
     Route::middleware([InitializeTenancyByRequestData::class])->group(function () {
         Route::post('/donations', [DonationController::class, 'store']);
@@ -39,6 +44,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
 
         // Candidates
+        Route::get('/candidates/check-slug', [CandidateController::class, 'checkSlugAvailability']);
         Route::apiResource('candidates', CandidateController::class);
         Route::get('/candidates/{candidate}/donations', [CandidateController::class, 'donations']);
         Route::get('/candidates/{candidate}/feedback', [CandidateController::class, 'feedback']);
@@ -51,10 +57,19 @@ Route::prefix('v1')->group(function () {
         // Constituencies
         Route::apiResource('constituencies', ConstituencyController::class);
 
+        // Districts (for admin selects)
+        Route::get('/districts', [DistrictController::class, 'index']);
+
         // Users (admin only)
         Route::middleware(['ability:' . User::ROLE_SUPER_ADMIN])->group(function () {
             Route::apiResource('users', UserController::class);
             Route::apiResource('templates', TemplateController::class);
         });
+
+        // Admin feedback management
+        Route::get('/admin/feedback', [FeedbackAdminController::class, 'index']);
+        Route::get('/admin/feedback/{feedback}', [FeedbackAdminController::class, 'show']);
+        Route::patch('/admin/feedback/{feedback}', [FeedbackAdminController::class, 'update']);
+        Route::post('/admin/feedback/{feedback}/comments', [FeedbackAdminController::class, 'storeComment']);
     });
 });

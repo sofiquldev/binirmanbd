@@ -159,4 +159,19 @@ class CandidateController extends Controller
         // Activity log implementation
         return response()->json(['message' => 'Activity log endpoint']);
     }
+
+    public function checkSlugAvailability(Request $request)
+    {
+        $request->validate([
+            'slug' => 'required|string|max:255',
+        ]);
+
+        $slug = $request->input('slug');
+        $exists = Candidate::where('slug', $slug)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'slug' => $slug,
+        ]);
+    }
 }

@@ -107,20 +107,66 @@
     {
       "title": "Users",
       "icon": "UserCircle",
-      "path": "/admin/users",
-      "privileges": ["users.view"]
+      "roles": ["super-admin"],
+      "privileges": ["users.view"],
+      "children": [
+        {
+          "title": "All Users",
+          "path": "/admin/users",
+          "privileges": ["users.view"]
+        },
+        {
+          "title": "Create User",
+          "path": "/admin/users/create",
+          "privileges": ["users.create"]
+        },
+        {
+          "title": "Roles",
+          "path": "/admin/users/roles",
+          "privileges": ["users.create"]
+        },
+        {
+          "title": "Permissions",
+          "path": "/admin/users/permissions",
+          "privileges": ["users.create"]
+        }
+      ]
     },
     {
       "title": "Templates",
       "icon": "FileText",
-      "path": "/admin/templates",
-      "privileges": ["templates.view"]
+      "roles": ["super-admin"],
+      "privileges": ["templates.view"],
+      "children": [
+        {
+          "title": "All Templates",
+          "path": "/admin/templates",
+          "privileges": ["templates.view"]
+        },
+        {
+          "title": "Create Template",
+          "path": "/admin/templates/create",
+          "privileges": ["templates.create"]
+        }
+      ]
     },
     {
       "title": "Donations",
       "icon": "Wallet",
-      "path": "/admin/donations",
-      "privileges": ["donations.view"]
+      "roles": ["super-admin"],
+      "privileges": ["donations.view"],
+      "children": [
+        {
+          "title": "All Donations",
+          "path": "/admin/donations",
+          "privileges": ["donations.view"]
+        },
+        {
+          "title": "Reports",
+          "path": "/admin/donations/reports",
+          "privileges": ["donations.view"]
+        }
+      ]
     },
     {
       "title": "Feedback",
@@ -137,26 +183,79 @@
     {
       "title": "Events",
       "icon": "CalendarCheck",
-      "path": "/admin/events",
-      "privileges": ["events.view"]
+      "roles": ["super-admin"],
+      "privileges": ["events.view"],
+      "children": [
+        {
+          "title": "All Events",
+          "path": "/admin/events",
+          "privileges": ["events.view"]
+        },
+        {
+          "title": "Create Event",
+          "path": "/admin/events/create",
+          "privileges": ["events.create"]
+        },
+        {
+          "title": "Calendar",
+          "path": "/admin/events/calendar",
+          "privileges": ["events.view"]
+        }
+      ]
     },
     {
       "title": "Polls",
       "icon": "BarChart3",
-      "path": "/admin/polls",
-      "privileges": ["polls.view"]
+      "roles": ["super-admin"],
+      "privileges": ["polls.view"],
+      "children": [
+        {
+          "title": "All Polls",
+          "path": "/admin/polls",
+          "privileges": ["polls.view"]
+        },
+        {
+          "title": "Create Poll",
+          "path": "/admin/polls/create",
+          "privileges": ["polls.create"]
+        }
+      ]
     },
     {
       "title": "Announcements",
       "icon": "Megaphone",
-      "path": "/admin/announcements",
-      "privileges": ["announcements.view"]
+      "roles": ["super-admin"],
+      "privileges": ["announcements.view"],
+      "children": [
+        {
+          "title": "All Announcements",
+          "path": "/admin/announcements",
+          "privileges": ["announcements.view"]
+        },
+        {
+          "title": "Create Announcement",
+          "path": "/admin/announcements/create",
+          "privileges": ["announcements.create"]
+        }
+      ]
     },
     {
       "title": "Appointments",
       "icon": "Calendar",
-      "path": "/admin/appointments",
-      "privileges": ["appointments.view"]
+      "roles": ["super-admin"],
+      "privileges": ["appointments.view"],
+      "children": [
+        {
+          "title": "All Appointments",
+          "path": "/admin/appointments",
+          "privileges": ["appointments.view"]
+        },
+        {
+          "title": "Calendar View",
+          "path": "/admin/appointments/calendar",
+          "privileges": ["appointments.view"]
+        }
+      ]
     },
     {
       "title": "Knowledge Base",

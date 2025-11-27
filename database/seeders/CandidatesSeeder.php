@@ -8,6 +8,7 @@ use App\Models\Template;
 use App\Models\User;
 use App\Models\Party;
 use App\Models\Constituency;
+use App\Models\District;
 use HasinHayder\Tyro\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -118,13 +119,35 @@ class CandidatesSeeder extends Seeder
             ],
         ];
 
+        // Map districts by slug for foreign key (district_id)
+        $districtMap = District::pluck('id', 'slug'); // ['dhaka' => 1, ...]
+
         $constituencyMap = [];
         foreach ($constituencies as $constituencyData) {
+            // Determine district slug from Bangla name if available, otherwise from English name
+            $districtNameForSlug = $constituencyData['district_bn'] ?? $constituencyData['district'] ?? null;
+            $districtSlug = $districtNameForSlug ? \Illuminate\Support\Str::slug($districtNameForSlug) : null;
+            $districtId = $districtSlug && isset($districtMap[$districtSlug])
+                ? $districtMap[$districtSlug]
+                : null;
+
+            $payload = [
+                'name' => $constituencyData['name'],
+                'name_bn' => $constituencyData['name_bn'] ?? null,
+                'slug' => $constituencyData['slug'],
+                'district_id' => $districtId,
+                'about' => $constituencyData['about'] ?? null,
+                'about_bn' => $constituencyData['about_bn'] ?? null,
+                'history' => $constituencyData['history'] ?? null,
+                'history_bn' => $constituencyData['history_bn'] ?? null,
+                'is_active' => $constituencyData['is_active'] ?? true,
+            ];
+
             $constituency = Constituency::firstOrCreate(
-                ['slug' => $constituencyData['slug']],
-                $constituencyData
+                ['slug' => $payload['slug']],
+                $payload
             );
-            $constituencyMap[$constituencyData['slug']] = $constituency->id;
+            $constituencyMap[$payload['slug']] = $constituency->id;
         }
 
         $candidates = [

@@ -11,6 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Districts (for constituencies)
+        Schema::create('districts', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('name_bn')->nullable();
+            $table->string('slug')->unique();
+            $table->string('division')->nullable();
+            $table->string('division_bn')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('parties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -33,8 +44,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('name_bn')->nullable();
             $table->string('slug')->unique();
-            $table->string('district')->nullable();
-            $table->string('district_bn')->nullable();
+            $table->foreignId('district_id')->nullable()->constrained('districts')->nullOnDelete();
             $table->text('about')->nullable();
             $table->text('about_bn')->nullable();
             $table->text('history')->nullable();
@@ -53,6 +63,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('constituencies');
         Schema::dropIfExists('parties');
+        Schema::dropIfExists('districts');
     }
 };
 
