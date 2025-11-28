@@ -11,6 +11,8 @@ import {
   BarChart3,
   Settings,
   UserCircle,
+  ScrollText,
+  FolderTree,
 } from 'lucide-react';
 import menuConfig from './menu.json';
 import { can, hasRole, canOrHasRole } from '@/lib/permissions';
@@ -29,6 +31,8 @@ const iconMap = {
   BarChart3,
   Settings,
   UserCircle,
+  ScrollText,
+  FolderTree,
 };
 
 // Convert JSON menu to React component format

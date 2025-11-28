@@ -12,6 +12,7 @@ import { DataPagination } from '@/components/ui/data-pagination';
 import { Combobox } from '@/components/ui/combobox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FeedbackDetailModal } from '@/components/feedback/FeedbackDetailModal';
+import { EntityDetailModal } from '@/components/common/EntityDetailModal';
 import {
   Search,
   Filter,
@@ -97,6 +98,11 @@ export default function AdminFeedbackPage() {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, per_page: 15, total: 0, last_page: 1 });
+  const [entityModal, setEntityModal] = useState({
+    open: false,
+    type: null,
+    id: null,
+  });
 
   // Filters
   const [search, setSearch] = useState('');
@@ -180,9 +186,9 @@ export default function AdminFeedbackPage() {
           aValue = a.description?.toLowerCase() || '';
           bValue = b.description?.toLowerCase() || '';
           break;
-        case 'name':
-          aValue = a.name?.toLowerCase() || '';
-          bValue = b.name?.toLowerCase() || '';
+        case 'candidate':
+          aValue = a.candidate?.name?.toLowerCase() || '';
+          bValue = b.candidate?.name?.toLowerCase() || '';
           break;
         case 'location':
           aValue = a.candidate?.constituency?.name?.toLowerCase() || '';
@@ -314,7 +320,9 @@ export default function AdminFeedbackPage() {
       <div className="grid gap-5 lg:gap-7.5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-mono mb-2">Feedback</h1>
+            <h1 className="text-2xl font-semibold text-mono mb-2">
+              Feedback {pagination.total > 0 && <span className="text-muted-foreground">({pagination.total})</span>}
+            </h1>
             <p className="text-sm text-secondary-foreground">Manage all feedback messages</p>
           </div>
         </div>
@@ -426,10 +434,10 @@ export default function AdminFeedbackPage() {
                     <TableHead>
                       <button
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
-                        onClick={() => handleSort('name')}
+                        onClick={() => handleSort('candidate')}
                       >
-                        User
-                        {sortConfig.field === 'name' ? (
+                        Candidate
+                        {sortConfig.field === 'candidate' ? (
                           sortConfig.direction === 'asc' ? (
                             <ArrowUp className="size-3" />
                           ) : (
@@ -443,10 +451,10 @@ export default function AdminFeedbackPage() {
                     <TableHead>
                       <button
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
-                        onClick={() => handleSort('location')}
+                        onClick={() => handleSort('created_at')}
                       >
-                        Location
-                        {sortConfig.field === 'location' ? (
+                        Created At
+                        {sortConfig.field === 'created_at' ? (
                           sortConfig.direction === 'asc' ? (
                             <ArrowUp className="size-3" />
                           ) : (
@@ -462,25 +470,8 @@ export default function AdminFeedbackPage() {
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
                         onClick={() => handleSort('views')}
                       >
-                        Views
+                        Views / Comments
                         {sortConfig.field === 'views' ? (
-                          sortConfig.direction === 'asc' ? (
-                            <ArrowUp className="size-3" />
-                          ) : (
-                            <ArrowDown className="size-3" />
-                          )
-                        ) : (
-                          <ChevronsUpDown className="size-3 opacity-40" />
-                        )}
-                      </button>
-                    </TableHead>
-                    <TableHead>
-                      <button
-                        className="flex items-center gap-1 hover:text-foreground transition-colors"
-                        onClick={() => handleSort('comments')}
-                      >
-                        Comments
-                        {sortConfig.field === 'comments' ? (
                           sortConfig.direction === 'asc' ? (
                             <ArrowUp className="size-3" />
                           ) : (
@@ -524,30 +515,68 @@ export default function AdminFeedbackPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {item.name ? (
-                          <div className="font-medium">{item.name}</div>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        {item.candidate ? (
+                          <div className="space-y-1">
+                            <button
+                              type="button"
+                              className="text-primary hover:underline font-medium text-left"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEntityModal({
+                                  open: true,
+                                  type: 'candidate',
+                                  id: item.candidate.id,
+                                });
+                              }}
+                            >
+                              {item.candidate.name}
+                            </button>
+                            {item.candidate.constituency && (
+                              <div>
+                                <button
+                                  type="button"
+                                  className="text-xs text-muted-foreground hover:text-primary hover:underline text-left"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEntityModal({
+                                      open: true,
+                                      type: 'constituency',
+                                      id: item.candidate.constituency.id,
+                                    });
+                                  }}
+                                >
+                                  {item.candidate.constituency.name}
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        {item.candidate?.constituency ? (
-                          <div>{item.candidate.constituency.name}</div>
+                        {item.created_at ? (
+                          <div className="text-sm">
+                            {new Date(item.created_at).toLocaleDateString()}
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(item.created_at).toLocaleTimeString()}
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Eye className="size-4 text-muted-foreground" />
-                          <span>{item.views || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <MessageSquare className="size-4 text-muted-foreground" />
-                          <span>{item.comments_count || 0}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <Eye className="size-4 text-muted-foreground" />
+                            <span className="text-sm">{item.views || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageSquare className="size-4 text-muted-foreground" />
+                            <span className="text-sm">{item.comments_count || 0}</span>
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -573,6 +602,16 @@ export default function AdminFeedbackPage() {
           onOpenChange={setIsDetailOpen}
           feedback={selectedFeedback}
           onFeedbackUpdate={handleFeedbackUpdate}
+        />
+
+        {/* Entity Detail Modal (Candidate, Constituency, Party) */}
+        <EntityDetailModal
+          type={entityModal.type}
+          id={entityModal.id}
+          open={entityModal.open}
+          onOpenChange={(open) =>
+            setEntityModal((prev) => ({ ...prev, open }))
+          }
         />
       </div>
     </div>

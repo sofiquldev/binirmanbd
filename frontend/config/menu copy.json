@@ -1,14 +1,12 @@
 {
   "menu": [
     {
-      "heading": "Candidate",
-      "roles": ["candidate-admin"]
-    },
-    {
       "title": "Dashboard",
       "icon": "LayoutGrid",
-      "path": "/candidate/dashboard",
-      "roles": ["candidate-admin"]
+      "path": "/dashboard"
+    },
+    {
+      "heading": "Candidate"
     },
     {
       "title": "Templates",
@@ -75,7 +73,7 @@
       "roles": ["super-admin"]
     },
     {
-      "title": "Dashboard",
+      "title": "Admin Dashboard",
       "icon": "LayoutGrid",
       "path": "/admin/dashboard",
       "roles": ["super-admin"]
@@ -136,17 +134,141 @@
       ]
     },
     {
+      "title": "Templates",
+      "icon": "FileText",
+      "roles": ["super-admin"],
+      "privileges": ["templates.view"],
+      "children": [
+        {
+          "title": "All Templates",
+          "path": "/admin/templates",
+          "privileges": ["templates.view"]
+        },
+        {
+          "title": "Create Template",
+          "path": "/admin/templates/create",
+          "privileges": ["templates.create"]
+        }
+      ]
+    },
+    {
+      "title": "Donations",
+      "icon": "Wallet",
+      "roles": ["super-admin"],
+      "privileges": ["donations.view"],
+      "children": [
+        {
+          "title": "All Donations",
+          "path": "/admin/donations",
+          "privileges": ["donations.view"]
+        },
+        {
+          "title": "Reports",
+          "path": "/admin/donations/reports",
+          "privileges": ["donations.view"]
+        }
+      ]
+    },
+    {
       "title": "Feedback",
       "icon": "MessageSquare",
       "path": "/admin/feedback",
       "privileges": ["feedback.view"]
     },
     {
-      "title": "Donations",
-      "icon": "Wallet",
-      "path": "/admin/donations",
+      "title": "Contacts",
+      "icon": "Users",
+      "path": "/admin/contacts",
+      "privileges": ["contacts.view"]
+    },
+    {
+      "title": "Events",
+      "icon": "CalendarCheck",
       "roles": ["super-admin"],
-      "privileges": ["donations.view"]
+      "privileges": ["events.view"],
+      "children": [
+        {
+          "title": "All Events",
+          "path": "/admin/events",
+          "privileges": ["events.view"]
+        },
+        {
+          "title": "Create Event",
+          "path": "/admin/events/create",
+          "privileges": ["events.create"]
+        },
+        {
+          "title": "Calendar",
+          "path": "/admin/events/calendar",
+          "privileges": ["events.view"]
+        }
+      ]
+    },
+    {
+      "title": "Polls",
+      "icon": "BarChart3",
+      "roles": ["super-admin"],
+      "privileges": ["polls.view"],
+      "children": [
+        {
+          "title": "All Polls",
+          "path": "/admin/polls",
+          "privileges": ["polls.view"]
+        },
+        {
+          "title": "Create Poll",
+          "path": "/admin/polls/create",
+          "privileges": ["polls.create"]
+        }
+      ]
+    },
+    {
+      "title": "Announcements",
+      "icon": "Megaphone",
+      "roles": ["super-admin"],
+      "privileges": ["announcements.view"],
+      "children": [
+        {
+          "title": "All Announcements",
+          "path": "/admin/announcements",
+          "privileges": ["announcements.view"]
+        },
+        {
+          "title": "Create Announcement",
+          "path": "/admin/announcements/create",
+          "privileges": ["announcements.create"]
+        }
+      ]
+    },
+    {
+      "title": "Appointments",
+      "icon": "Calendar",
+      "roles": ["super-admin"],
+      "privileges": ["appointments.view"],
+      "children": [
+        {
+          "title": "All Appointments",
+          "path": "/admin/appointments",
+          "privileges": ["appointments.view"]
+        },
+        {
+          "title": "Calendar View",
+          "path": "/admin/appointments/calendar",
+          "privileges": ["appointments.view"]
+        }
+      ]
+    },
+    {
+      "title": "Knowledge Base",
+      "icon": "Book",
+      "path": "/admin/knowledge",
+      "privileges": ["knowledge.view"]
+    },
+    {
+      "title": "Engagement",
+      "icon": "BarChart3",
+      "path": "/admin/engagement",
+      "privileges": ["engagement.view"]
     },
     {
       "title": "Manifestos",
@@ -160,7 +282,12 @@
           "privileges": ["manifestos.view"]
         },
         {
-          "title": "Manifestos Ctegories",
+          "title": "Create Manifesto",
+          "path": "/admin/manifestos/create",
+          "privileges": ["manifestos.create"]
+        },
+        {
+          "title": "Manifestos Category",
           "path": "/admin/manifestos/categories",
           "privileges": ["manifestos.view"]
         }
@@ -181,11 +308,6 @@
           "title": "System",
           "path": "/admin/settings/system",
           "privileges": ["settings.system"]
-        },
-        {
-          "title": "Templates",
-          "path": "/admin/settings/templates",
-          "privileges": ["templates.view"]
         },
         {
           "title": "Roles & Permissions",

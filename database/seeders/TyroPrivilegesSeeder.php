@@ -100,6 +100,12 @@ class TyroPrivilegesSeeder extends Seeder
             ['slug' => 'engagement.update', 'name' => 'Update Engagement'],
             ['slug' => 'engagement.delete', 'name' => 'Delete Engagement'],
             
+            // Manifestos
+            ['slug' => 'manifestos.view', 'name' => 'View Manifestos'],
+            ['slug' => 'manifestos.create', 'name' => 'Create Manifestos'],
+            ['slug' => 'manifestos.update', 'name' => 'Update Manifestos'],
+            ['slug' => 'manifestos.delete', 'name' => 'Delete Manifestos'],
+            
             // Settings
             ['slug' => 'settings.view', 'name' => 'View Settings'],
             ['slug' => 'settings.general', 'name' => 'Manage General Settings'],
@@ -141,6 +147,7 @@ class TyroPrivilegesSeeder extends Seeder
                 'knowledge.view',
                 'engagement.view',
                 'templates.view',
+                'manifestos.view',
             ])->get();
             $candidateAdminRole->privileges()->sync($viewPrivileges->pluck('id'));
             $this->command->info('View privileges attached to candidate-admin role!');
@@ -161,6 +168,7 @@ class TyroPrivilegesSeeder extends Seeder
                 'knowledge.view',
                 'engagement.view',
                 'templates.view',
+                'manifestos.view',
             ])->get();
             $teamMemberRole->privileges()->sync($viewPrivileges->pluck('id'));
             $this->command->info('View privileges attached to team-member role!');

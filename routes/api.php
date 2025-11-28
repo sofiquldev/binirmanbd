@@ -51,6 +51,21 @@ Route::prefix('v1')->group(function () {
         Route::get('/candidates/{candidate}/events', [CandidateController::class, 'events']);
         Route::get('/candidates/{candidate}/activity', [CandidateController::class, 'activity']);
 
+        // Election Manifestos (Admin - All manifestos)
+        Route::get('/manifestos', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'indexAll']);
+
+        // Election Manifestos (Candidate-specific)
+        Route::prefix('candidates/{candidate}')->group(function () {
+            Route::get('/manifestos', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'index']);
+            Route::post('/manifestos', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'store']);
+            Route::get('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'show']);
+            Route::put('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'update']);
+            Route::delete('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'destroy']);
+        });
+
+        // Election Manifesto Categories
+        Route::apiResource('election-manifesto-categories', \App\Http\Controllers\Api\ElectionManifestoCategoryController::class);
+
         // Parties
         Route::apiResource('parties', PartyController::class);
 

@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Combobox } from '@/components/ui/combobox';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { EntityDetailModal } from '@/components/common/EntityDetailModal';
 
 // Static list of districts (Bangla + slug), grouped by division
 const STATIC_DISTRICTS = [
@@ -83,7 +84,11 @@ export default function ConstituenciesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [detailItem, setDetailItem] = useState(null);
+  const [entityModal, setEntityModal] = useState({
+    open: false,
+    type: null,
+    id: null,
+  });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
@@ -184,14 +189,12 @@ export default function ConstituenciesPage() {
     }
   };
 
-  const openDetailModal = async (item) => {
-    try {
-      const response = await api.get(`/constituencies/${item.id}`);
-      setDetailItem(response.data);
-      setIsDetailOpen(true);
-    } catch (error) {
-      alert('Failed to load constituency details');
-    }
+  const openDetailModal = (item) => {
+    setEntityModal({
+      open: true,
+      type: 'constituency',
+      id: item.id,
+    });
   };
 
   const columns = useMemo(
@@ -204,12 +207,10 @@ export default function ConstituenciesPage() {
           return (
             <button
               type="button"
-              className="text-left"
+              className="text-left font-medium text-primary hover:underline"
               onClick={() => openDetailModal(item)}
             >
-              <div className="font-medium text-primary hover:underline">
-                {item.name}
-              </div>
+              {item.name}
               {item.name_bn && (
                 <div className="text-sm text-secondary-foreground">
                   {item.name_bn}
@@ -486,76 +487,15 @@ export default function ConstituenciesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Constituency Detail Modal */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{detailItem?.name}</DialogTitle>
-            {detailItem?.name_bn && (
-              <DialogDescription>{detailItem.name_bn}</DialogDescription>
-            )}
-          </DialogHeader>
-
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            {detailItem?.district && (
-              <div className="text-sm">
-                <span className="font-semibold">District: </span>
-                <span>{detailItem.district.name}</span>
-                {detailItem.district.name_bn && (
-                  <span className="text-secondary-foreground">
-                    {' '}
-                    ({detailItem.district.name_bn})
-                  </span>
-                )}
-              </div>
-            )}
-
-            {detailItem?.about && (
-              <div>
-                <h3 className="text-sm font-semibold mb-1">About</h3>
-                <p className="text-sm text-secondary-foreground whitespace-pre-line">
-                  {detailItem.about}
-                </p>
-              </div>
-            )}
-
-            {Array.isArray(detailItem?.candidates) &&
-              detailItem.candidates.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">
-                    Candidates ({detailItem.candidates.length})
-                  </h3>
-                  <div className="space-y-1">
-                    {detailItem.candidates.map((candidate) => (
-                      <div
-                        key={candidate.id}
-                        className="flex items-center justify-between text-sm border-b border-border/60 py-1.5"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {candidate.name || 'Unnamed candidate'}
-                          </div>
-                          {candidate.slug && (
-                            <div className="text-xs text-secondary-foreground">
-                              {candidate.slug}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            {!detailItem?.about &&
-              (!detailItem?.candidates || detailItem.candidates.length === 0) && (
-                <p className="text-sm text-muted-foreground">
-                  No additional information available for this constituency yet.
-                </p>
-              )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Entity Detail Modal */}
+      <EntityDetailModal
+        type={entityModal.type}
+        id={entityModal.id}
+        open={entityModal.open}
+        onOpenChange={(open) =>
+          setEntityModal((prev) => ({ ...prev, open }))
+        }
+      />
     </div>
   );
 }

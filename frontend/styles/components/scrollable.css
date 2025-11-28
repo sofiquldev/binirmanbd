@@ -100,7 +100,7 @@
   }
 
   /* Responsive adjustments for smaller screens */
-  @media (max-width: var(--breakpoint-xl)) {
+  @media (max-width: 1279px) {
     .kt-scrollable,
     .kt-scrollable-hover {
       overflow: auto;

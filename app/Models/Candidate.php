@@ -138,6 +138,11 @@ class Candidate extends Model
     {
         return $this->belongsTo(Constituency::class);
     }
+
+    public function manifestos()
+    {
+        return $this->hasMany(ElectionManifesto::class);
+    }
 }
 
 

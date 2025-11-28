@@ -16,9 +16,29 @@ class CandidateController extends Controller
 {
     public function index(Request $request)
     {
-        $candidates = Candidate::with(['template', 'tenant', 'party', 'constituency'])
-            ->latest()
-            ->paginate($request->get('per_page', 15));
+        $query = Candidate::with(['template', 'tenant', 'party', 'constituency']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('name_bn', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply party filter
+        if ($request->filled('party_id')) {
+            $query->where('party_id', $request->integer('party_id'));
+        }
+
+        // Apply constituency filter
+        if ($request->filled('constituency_id')) {
+            $query->where('constituency_id', $request->integer('constituency_id'));
+        }
+
+        $candidates = $query->latest()->paginate($request->get('per_page', 15));
 
         return response()->json($candidates);
     }
@@ -79,7 +99,7 @@ class CandidateController extends Controller
 
     public function show(Candidate $candidate)
     {
-        $candidate->load(['template', 'party', 'constituency', 'donations', 'contactMessages', 'events', 'appointments']);
+        $candidate->load(['template', 'party', 'constituency', 'donations', 'contactMessages', 'events', 'appointments', 'manifestos.category']);
         return response()->json($candidate);
     }
 

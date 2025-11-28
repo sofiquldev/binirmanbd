@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { EntityDetailModal } from '@/components/common/EntityDetailModal';
 
 // Simple slug generator
 const generateSlug = (value) =>
@@ -47,7 +48,11 @@ export default function PartiesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [editingParty, setEditingParty] = useState(null);
-  const [detailParty, setDetailParty] = useState(null);
+  const [entityModal, setEntityModal] = useState({
+    open: false,
+    type: null,
+    id: null,
+  });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
@@ -126,14 +131,12 @@ export default function PartiesPage() {
     }
   };
 
-  const openDetailModal = async (party) => {
-    try {
-      const response = await api.get(`/parties/${party.id}`);
-      setDetailParty(response.data);
-      setIsDetailOpen(true);
-    } catch (error) {
-      alert('Failed to load party details');
-    }
+  const openDetailModal = (party) => {
+    setEntityModal({
+      open: true,
+      type: 'party',
+      id: party.id,
+    });
   };
 
   const columns = useMemo(
@@ -146,12 +149,10 @@ export default function PartiesPage() {
           return (
             <button
               type="button"
-              className="text-left"
+              className="text-left font-medium text-primary hover:underline"
               onClick={() => openDetailModal(party)}
             >
-              <div className="font-medium text-primary hover:underline">
-                {party.name}
-              </div>
+              {party.name}
               {party.name_bn && (
                 <div className="text-sm text-secondary-foreground">
                   {party.name_bn}
@@ -370,63 +371,15 @@ export default function PartiesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Party Detail Modal */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{detailParty?.name}</DialogTitle>
-            {detailParty?.name_bn && (
-              <DialogDescription>{detailParty.name_bn}</DialogDescription>
-            )}
-          </DialogHeader>
-
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            {detailParty?.about && (
-              <div>
-                <h3 className="text-sm font-semibold mb-1">About</h3>
-                <p className="text-sm text-secondary-foreground whitespace-pre-line">
-                  {detailParty.about}
-                </p>
-              </div>
-            )}
-
-            {Array.isArray(detailParty?.candidates) &&
-              detailParty.candidates.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">
-                    Candidates ({detailParty.candidates.length})
-                  </h3>
-                  <div className="space-y-1">
-                    {detailParty.candidates.map((candidate) => (
-                      <div
-                        key={candidate.id}
-                        className="flex items-center justify-between text-sm border-b border-border/60 py-1.5"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {candidate.name || 'Unnamed candidate'}
-                          </div>
-                          {candidate.slug && (
-                            <div className="text-xs text-secondary-foreground">
-                              {candidate.slug}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            {!detailParty?.about &&
-              (!detailParty?.candidates || detailParty.candidates.length === 0) && (
-                <p className="text-sm text-muted-foreground">
-                  No additional information available for this party yet.
-                </p>
-              )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Entity Detail Modal */}
+      <EntityDetailModal
+        type={entityModal.type}
+        id={entityModal.id}
+        open={entityModal.open}
+        onOpenChange={(open) =>
+          setEntityModal((prev) => ({ ...prev, open }))
+        }
+      />
     </div>
   );
 }

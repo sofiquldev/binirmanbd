@@ -97,7 +97,7 @@ export const MENU_SIDEBAR_WORKSPACES = [
         icon: Briefcase,
       },
       {
-        title: 'KeenThemes Studio',
+        title: 'coderfleek Studio',
         path: '#',
         icon: Palette,
       },
