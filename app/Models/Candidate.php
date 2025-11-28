@@ -143,6 +143,18 @@ class Candidate extends Model
     {
         return $this->hasMany(ElectionManifesto::class);
     }
+
+    public function donationSetting()
+    {
+        return $this->hasOne(CandidateDonationSetting::class);
+    }
+
+    public function paymentMethods()
+    {
+        return $this->belongsToMany(PaymentMethod::class, 'candidate_payment_methods')
+            ->withPivot('config', 'is_enabled', 'sort_order')
+            ->withTimestamps();
+    }
 }
 
 

@@ -1,0 +1,35 @@
+{
+  "common": {
+    "dashboard": "ড্যাশবোর্ড",
+    "feedback": "প্রতিক্রিয়া",
+    "manifestos": "ইশতেহার",
+    "candidates": "প্রার্থীগণ",
+    "parties": "দলসমূহ",
+    "constituencies": "নির্বাচনী এলাকা",
+    "login": "লগইন",
+    "register": "রেজিস্টার",
+    "settings": "সেটিংস",
+    "profile": "প্রোফাইল",
+    "all_manifestos": "সকল ইশতেহার",
+    "create_manifesto": "ইশতেহার তৈরি করুন",
+    "manifesto_categories": "ইশতেহারের বিভাগ",
+    "manage_all_feedback_messages": "সকল প্রতিক্রিয়ার বার্তা পরিচালনা করুন",
+    "manage_all_election_manifestos_from_all_candidates": "সকল প্রার্থীর সকল নির্বাচনী ইশতেহার পরিচালনা করুন",
+    "manage_all_candidates": "সকল প্রার্থী পরিচালনা করুন",
+    "manage_all_political_parties": "সকল রাজনৈতিক দল পরিচালনা করুন",
+    "manage_all_constituencies": "সকল নির্বাচনী এলাকা পরিচালনা করুন",
+    "create_candidate": "প্রার্থী তৈরি করুন",
+    "create_party": "দল তৈরি করুন",
+    "create_constituency": "নির্বাচনী এলাকা তৈরি করুন",
+    "edit": "সম্পাদনা",
+    "feedbacks": "প্রতিক্রিয়া",
+    "donations": "অনুদান",
+    "events": "ইভেন্ট",
+    "contacts": "যোগাযোগ",
+    "projects": "প্রকল্প",
+    "notices": "বিজ্ঞপ্তি",
+    "photo_gallery": "ছবি গ্যালারি",
+    "landing_page": "ল্যান্ডিং পেজ"
+  }
+}
+

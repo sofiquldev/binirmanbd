@@ -32,6 +32,10 @@ Route::prefix('v1')->group(function () {
 
     // Tenant-specific public routes
     Route::middleware([InitializeTenancyByRequestData::class])->group(function () {
+        // Public donation submission (by candidate ID/slug) - No authentication required
+        Route::post('/candidates/{candidate}/donations/public', [DonationController::class, 'storePublic']);
+        Route::get('/candidates/{candidate}/donation-settings', [DonationController::class, 'getCandidateSettings']);
+        
         Route::post('/donations', [DonationController::class, 'store']);
         Route::post('/feedback', [FeedbackController::class, 'store']);
         Route::get('/contacts', [ContactController::class, 'index']);
@@ -46,10 +50,17 @@ Route::prefix('v1')->group(function () {
         // Candidates
         Route::get('/candidates/check-slug', [CandidateController::class, 'checkSlugAvailability']);
         Route::apiResource('candidates', CandidateController::class);
-        Route::get('/candidates/{candidate}/donations', [CandidateController::class, 'donations']);
+        Route::get('/candidates/{candidate}/donations', [DonationController::class, 'getCandidateDonations']);
+        Route::get('/candidates/{candidate}/donation-settings', [DonationController::class, 'getCandidateSettings']);
+        Route::put('/candidates/{candidate}/donation-settings', [DonationController::class, 'updateCandidateSettings']);
         Route::get('/candidates/{candidate}/feedback', [CandidateController::class, 'feedback']);
         Route::get('/candidates/{candidate}/events', [CandidateController::class, 'events']);
         Route::get('/candidates/{candidate}/activity', [CandidateController::class, 'activity']);
+        
+        // Donations (Admin)
+        Route::get('/admin/donations', [DonationController::class, 'index']);
+        Route::get('/admin/donations/{donation}', [DonationController::class, 'show']);
+        Route::patch('/admin/donations/{donation}', [DonationController::class, 'update']);
 
         // Election Manifestos (Admin - All manifestos)
         Route::get('/manifestos', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'indexAll']);
@@ -86,5 +97,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/admin/feedback/{feedback}', [FeedbackAdminController::class, 'show']);
         Route::patch('/admin/feedback/{feedback}', [FeedbackAdminController::class, 'update']);
         Route::post('/admin/feedback/{feedback}/comments', [FeedbackAdminController::class, 'storeComment']);
+
+        // Payment methods management (admin only)
+        Route::apiResource('payment-methods', \App\Http\Controllers\Api\PaymentMethodController::class);
+        Route::patch('/payment-methods/{paymentMethod}/toggle-active', [\App\Http\Controllers\Api\PaymentMethodController::class, 'toggleActive']);
     });
 });

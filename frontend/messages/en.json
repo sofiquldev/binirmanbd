@@ -1,0 +1,35 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "feedback": "Feedback",
+    "manifestos": "Manifestos",
+    "candidates": "Candidates",
+    "parties": "Parties",
+    "constituencies": "Constituencies",
+    "login": "Login",
+    "register": "Register",
+    "settings": "Settings",
+    "profile": "Profile",
+    "all_manifestos": "All Manifestos",
+    "create_manifesto": "Create Manifesto",
+    "manifesto_categories": "Manifesto Categories",
+    "manage_all_feedback_messages": "Manage all feedback messages",
+    "manage_all_election_manifestos_from_all_candidates": "Manage all election manifestos from all candidates",
+    "manage_all_candidates": "Manage all candidates",
+    "manage_all_political_parties": "Manage all political parties",
+    "manage_all_constituencies": "Manage all constituencies",
+    "create_candidate": "Create Candidate",
+    "create_party": "Create Party",
+    "create_constituency": "Create Constituency",
+    "edit": "Edit",
+    "feedbacks": "Feedbacks",
+    "donations": "Donations",
+    "events": "Events",
+    "contacts": "Contacts",
+    "projects": "Projects",
+    "notices": "Notices",
+    "photo_gallery": "Photo Gallery",
+    "landing_page": "Landing Page"
+  }
+}
+

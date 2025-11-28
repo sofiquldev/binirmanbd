@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         // Seed users
         $this->call(UserSeeder::class);
 
+        // Seed payment methods
+        $this->call(PaymentMethodsSeeder::class);
+
         // Then seed other data
         $this->call(DistrictsSeeder::class);
         $this->call(TemplateSeeder::class);

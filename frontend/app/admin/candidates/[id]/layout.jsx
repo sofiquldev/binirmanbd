@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useOverflowMenu } from '@/hooks/use-overflow-menu';
+import { EntityDetailModal } from '@/components/common/EntityDetailModal';
 
 // UserHero Component
 function UserHero({
@@ -51,6 +52,14 @@ function UserHero({
             >
               {item.email}
             </Link>
+          ) : item.onClick ? (
+            <button
+              type="button"
+              onClick={item.onClick}
+              className="text-secondary-foreground font-medium hover:text-primary cursor-pointer"
+            >
+              {item.label}
+            </button>
           ) : (
             <span className="text-secondary-foreground font-medium">
               {item.label}
@@ -278,7 +287,7 @@ function TabNavigation({ candidateId, activeTab, candidate, router }) {
             </Button>
           )}
           <Button
-            onClick={() => router.push(`/admin/candidates/${candidate.id}/edit`)}
+            onClick={() => router.push(`/admin/candidates/${candidate.id}/settings`)}
             className="max-md:px-2 max-md:[&>span]:hidden"
             aria-label="Edit candidate settings"
           >
@@ -297,6 +306,27 @@ export default function CandidateLayout({ children }) {
   const pathname = usePathname();
   const { candidate, loading, fetchCandidate } = useCandidatesStore();
   const candidateId = params.id;
+  
+  // Entity modal state
+  const [entityModal, setEntityModal] = useState({
+    open: false,
+    type: null,
+    id: null,
+  });
+
+  // Determine active tab from pathname
+  const activeTab = useMemo(() => {
+    if (pathname?.includes('/settings')) return 'settings';
+    if (pathname?.endsWith('/feedbacks')) return 'feedbacks';
+    if (pathname?.endsWith('/donates')) return 'donates';
+    if (pathname?.endsWith('/projects')) return 'projects';
+    if (pathname?.endsWith('/events')) return 'events';
+    if (pathname?.endsWith('/notices')) return 'notices';
+    if (pathname?.endsWith('/photo-gallery')) return 'photo-gallery';
+    if (pathname?.endsWith('/contacts')) return 'contacts';
+    if (pathname?.endsWith('/manifesto')) return 'manifesto';
+    return 'overview';
+  }, [pathname]);
 
   useEffect(() => {
     if (candidateId) {
@@ -304,19 +334,6 @@ export default function CandidateLayout({ children }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateId]);
-
-  // Determine active tab from pathname
-  const activeTab = useMemo(() => {
-    if (pathname.endsWith('/feedbacks')) return 'feedbacks';
-    if (pathname.endsWith('/donates')) return 'donates';
-    if (pathname.endsWith('/projects')) return 'projects';
-    if (pathname.endsWith('/events')) return 'events';
-    if (pathname.endsWith('/notices')) return 'notices';
-    if (pathname.endsWith('/photo-gallery')) return 'photo-gallery';
-    if (pathname.endsWith('/contacts')) return 'contacts';
-    if (pathname.endsWith('/manifesto')) return 'manifesto';
-    return 'overview';
-  }, [pathname]);
 
   // Loading state
   if (loading && !candidate) {
@@ -366,12 +383,29 @@ export default function CandidateLayout({ children }) {
     </div>
   );
 
-  // Build hero info
+  // Build hero info with clickable party and constituency
   const heroInfo = [
-    candidate?.party && { label: candidate.party.name, icon: Users },
+    candidate?.party && {
+      label: candidate.party.name,
+      icon: Users,
+      onClick: () => {
+        setEntityModal({
+          open: true,
+          type: 'party',
+          id: candidate.party.id,
+        });
+      },
+    },
     candidate?.constituency && {
       label: candidate.constituency.name,
       icon: MapPin,
+      onClick: () => {
+        setEntityModal({
+          open: true,
+          type: 'constituency',
+          id: candidate.constituency.id,
+        });
+      },
     },
     candidate?.email && { email: candidate.email, icon: Mail },
   ].filter(Boolean);
@@ -388,6 +422,12 @@ export default function CandidateLayout({ children }) {
         router={router}
       />
       <div className="container">{children}</div>
+      <EntityDetailModal
+        open={entityModal.open}
+        onOpenChange={(open) => setEntityModal({ ...entityModal, open })}
+        type={entityModal.type}
+        id={entityModal.id}
+      />
     </Fragment>
   );
 }

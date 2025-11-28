@@ -163,7 +163,7 @@ export function UserDropdownMenu({ trigger }) {
 
         <DropdownMenuItem asChild>
           <Link
-            href="https://devs.keenthemes.com"
+            href="https://devs.coderfleek.com"
             className="flex items-center gap-2"
           >
             <SquareCode />

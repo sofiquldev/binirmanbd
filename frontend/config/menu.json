@@ -108,34 +108,6 @@
       ]
     },
     {
-      "title": "Users",
-      "icon": "UserCircle",
-      "roles": ["super-admin"],
-      "privileges": ["users.view"],
-      "children": [
-        {
-          "title": "All Users",
-          "path": "/admin/users",
-          "privileges": ["users.view"]
-        },
-        {
-          "title": "Create User",
-          "path": "/admin/users/create",
-          "privileges": ["users.create"]
-        },
-        {
-          "title": "Roles",
-          "path": "/admin/users/roles",
-          "privileges": ["users.create"]
-        },
-        {
-          "title": "Permissions",
-          "path": "/admin/users/permissions",
-          "privileges": ["users.create"]
-        }
-      ]
-    },
-    {
       "title": "Feedback",
       "icon": "MessageSquare",
       "path": "/admin/feedback",
@@ -163,6 +135,34 @@
           "title": "Manifestos Ctegories",
           "path": "/admin/manifestos/categories",
           "privileges": ["manifestos.view"]
+        }
+      ]
+    },
+    {
+      "title": "Users",
+      "icon": "UserCircle",
+      "roles": ["super-admin"],
+      "privileges": ["users.view"],
+      "children": [
+        {
+          "title": "All Users",
+          "path": "/admin/users",
+          "privileges": ["users.view"]
+        },
+        {
+          "title": "Create User",
+          "path": "/admin/users/create",
+          "privileges": ["users.create"]
+        },
+        {
+          "title": "Roles",
+          "path": "/admin/users/roles",
+          "privileges": ["users.create"]
+        },
+        {
+          "title": "Permissions",
+          "path": "/admin/users/permissions",
+          "privileges": ["users.create"]
         }
       ]
     },

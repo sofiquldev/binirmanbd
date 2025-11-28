@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { QueryProvider } from '@/lib/providers/query-provider';
 import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -48,12 +49,14 @@ export default async function RootLayout({ children }) {
           disableTransitionOnChange
           enableColorScheme
         >
-          <AuthProvider>
-            <TooltipProvider delayDuration={0}>
-              <Suspense>{children}</Suspense>
-              <Toaster />
-            </TooltipProvider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <TooltipProvider delayDuration={0}>
+                <Suspense>{children}</Suspense>
+                <Toaster />
+              </TooltipProvider>
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

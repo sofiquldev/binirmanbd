@@ -13,7 +13,7 @@ const MegaMenuFooter = () => {
         </div>
       </div>
       <Button variant="mono" asChild>
-        <Link href="https://keenthemes.com/metronic" target="_blank">
+        <Link href="https://coderfleek.com/metronic" target="_blank">
           Read Documentation
         </Link>
       </Button>

@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { getSigninSchema } from '../forms/signin-schema';
+import { getSigninSchema } from '@/app/(auth)/forms/signin-schema';
 
 export default function LoginPage() {
   const router = useRouter();

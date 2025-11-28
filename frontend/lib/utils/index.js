@@ -1,11 +1,13 @@
 /**
- * Utility functions index
- * Centralized exports for all utility functions
- * 
- * Note: This file is in lib/utils/ directory
- * The main lib/utils.js file exports the 'cn' function
+ * Utility Functions Index
+ * Central export for all utility functions
  */
 
-export * from './gravatar';
+export * from './cache';
+export * from './format';
+export * from './validation';
+export * from './error-handler';
+export * from './qr-code';
+export { cn } from '../utils';
 export * from './avatar';
-
+export * from './gravatar';

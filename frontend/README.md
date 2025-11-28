@@ -1,103 +1,104 @@
-# Binirman BD - Frontend (Next.js)
+# Binirman BD - Frontend Application
 
-This is the Next.js frontend application for Binirman BD, built with Metronic React Next.js starter kit.
+A modern, scalable Next.js application for managing election candidates, manifestos, and feedback.
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 16.x or higher
-- NPM or Yarn
+
+- Node.js 18+ 
+- npm or yarn
 
 ### Installation
 
 ```bash
-npm install --force
-```
+# Install dependencies
+npm install
 
-### Environment Setup
-
-Copy `.env.local.example` to `.env.local` and configure:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Update the API URL in `.env.local`:
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-```
-
-### Development
-
-Start the development server:
-
-```bash
+# Run development server
 npm run dev
-```
 
-The application will be available at `http://localhost:3000`
-
-### Building for Production
-
-```bash
+# Build for production
 npm run build
+
+# Start production server
 npm start
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 frontend/
-├── app/                    # Next.js app directory
-│   ├── (layouts)/         # Layout-specific pages
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Authentication routes
+│   ├── (public)/          # Public routes
+│   ├── (admin)/           # Admin routes
 │   └── layout.jsx         # Root layout
 ├── components/            # React components
-│   ├── layouts/           # Layout components
-│   └── ui/                # UI components
-├── contexts/              # React contexts
-│   └── AuthContext.jsx    # Authentication context
-├── lib/                   # Utility libraries
-│   ├── api.js             # API client (Axios)
-│   └── auth.js             # Authentication service
+│   ├── common/           # Shared components
+│   ├── ui/               # UI primitives
+│   └── layouts/          # Layout components
+├── lib/                   # Utilities & helpers
+│   ├── constants/        # App constants
+│   ├── services/         # API services
+│   ├── utils/            # Utility functions
+│   └── providers/        # Context providers
 ├── hooks/                 # Custom React hooks
-├── config/                # Configuration files
+├── contexts/              # React contexts
+├── stores/                # Zustand stores
 └── styles/                # Global styles
 ```
 
-## API Integration
+## 🛠️ Tech Stack
 
-The frontend communicates with the Laravel API backend. The API client is configured in `lib/api.js` and uses:
+- **Framework**: Next.js 15
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS 4
+- **State Management**: Zustand, React Query
+- **Forms**: React Hook Form + Zod
+- **Icons**: Lucide React
+- **HTTP Client**: Axios
 
-- Base URL: `NEXT_PUBLIC_API_URL` from environment variables
-- Authentication: Bearer token stored in localStorage
-- Automatic token injection via Axios interceptors
+## 📝 Code Standards
 
-## Authentication
+See [CODE_STANDARDS.md](./CODE_STANDARDS.md) for detailed coding conventions and best practices.
+
+## 🔐 Authentication
 
 Authentication is handled through:
-- `lib/auth.js` - Authentication service
-- `contexts/AuthContext.jsx` - React context for auth state
-- `middleware.js` - Route protection middleware
+- JWT tokens stored in cookies
+- Protected routes via middleware
+- Role-based access control (RBAC)
 
-## Features
+## 🎨 Styling
 
-- ✅ Authentication (Login/Register/Logout)
-- ✅ Dashboard with metrics
-- ✅ Candidate management
-- ✅ Party management
-- ✅ Constituency management
-- ✅ User management (Admin)
-- ✅ Template management (Admin)
+- Tailwind CSS for utility-first styling
+- Custom theme configuration
+- Dark mode support
+- Responsive design
 
-## Layout
+## 🚀 Performance
 
-The application uses Metronic's Layout 1 by default. To change layouts, update `app/(layouts)/layout-1/layout.jsx` or create a new layout.
+- React Query for server state caching
+- Next.js Image optimization
+- Code splitting with dynamic imports
+- Static generation where possible
 
-## Next Steps
+## 📦 Scripts
 
-1. Migrate remaining Blade views to React components
-2. Implement real-time updates (WebSockets/Polling)
-3. Add form validation with React Hook Form + Zod
-4. Implement file uploads
-5. Add error boundaries
-6. Add loading states and skeletons
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run format       # Format code with Prettier
+```
+
+## 🌍 Internationalization
+
+- English (en) - Default
+- Bengali (bn)
+
+## 📄 License
+
+Copyright © 2025 coderfleek. All rights reserved.

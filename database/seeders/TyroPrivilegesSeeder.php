@@ -106,6 +106,13 @@ class TyroPrivilegesSeeder extends Seeder
             ['slug' => 'manifestos.update', 'name' => 'Update Manifestos'],
             ['slug' => 'manifestos.delete', 'name' => 'Delete Manifestos'],
             
+            // Payment Methods
+            ['slug' => 'payment-methods.view', 'name' => 'View Payment Methods'],
+            ['slug' => 'payment-methods.create', 'name' => 'Create Payment Methods'],
+            ['slug' => 'payment-methods.update', 'name' => 'Update Payment Methods'],
+            ['slug' => 'payment-methods.delete', 'name' => 'Delete Payment Methods'],
+            ['slug' => 'payment-methods.activate', 'name' => 'Activate/Deactivate Payment Methods'],
+            
             // Settings
             ['slug' => 'settings.view', 'name' => 'View Settings'],
             ['slug' => 'settings.general', 'name' => 'Manage General Settings'],
@@ -148,6 +155,7 @@ class TyroPrivilegesSeeder extends Seeder
                 'engagement.view',
                 'templates.view',
                 'manifestos.view',
+                'payment-methods.view',
             ])->get();
             $candidateAdminRole->privileges()->sync($viewPrivileges->pluck('id'));
             $this->command->info('View privileges attached to candidate-admin role!');
@@ -169,6 +177,7 @@ class TyroPrivilegesSeeder extends Seeder
                 'engagement.view',
                 'templates.view',
                 'manifestos.view',
+                'payment-methods.view',
             ])->get();
             $teamMemberRole->privileges()->sync($viewPrivileges->pluck('id'));
             $this->command->info('View privileges attached to team-member role!');

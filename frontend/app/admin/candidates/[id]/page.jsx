@@ -91,7 +91,7 @@ function Highlights({ candidate }) {
 }
 
 // Candidate Profile Component
-function CandidateProfile({ candidate, getLandingPageUrl, getFeedbackQrUrl }) {
+function CandidateProfile({ candidate, getLandingPageUrl, getFeedbackQrUrl, getDonationQrUrl }) {
   const rows = [
     candidate?.slug && {
       icon: Globe,
@@ -104,6 +104,12 @@ function CandidateProfile({ candidate, getLandingPageUrl, getFeedbackQrUrl }) {
       text: getFeedbackQrUrl(),
       info: true,
       label: 'Feedback QR',
+    },
+    candidate?.slug && {
+      icon: QrCode,
+      text: getDonationQrUrl(),
+      info: true,
+      label: 'Donation QR',
     },
     candidate?.whatsapp_number && {
       icon: MessageSquare,
@@ -194,7 +200,7 @@ function CandidateProfile({ candidate, getLandingPageUrl, getFeedbackQrUrl }) {
 }
 
 // Additional Details Component
-function AdditionalDetails({ candidate, getFeedbackQrUrl }) {
+function AdditionalDetails({ candidate, getFeedbackQrUrl, getDonationQrUrl }) {
   const items = [
     candidate?.primary_domain && {
       label: 'Primary Domain',
@@ -209,8 +215,13 @@ function AdditionalDetails({ candidate, getFeedbackQrUrl }) {
       value: candidate.template.name || `Template ${candidate.template.id}`,
     },
     candidate?.slug && {
-      label: 'Feedback QR URL',
+      label: 'Feedback QR',
       value: getFeedbackQrUrl(),
+      link: true,
+    },
+    candidate?.slug && {
+      label: 'Donation QR',
+      value: getDonationQrUrl(),
       link: true,
     },
   ].filter(Boolean);
@@ -275,6 +286,14 @@ export default function CandidateOverviewPage() {
     return `${baseUrl}/c/${candidate.slug}/feedback`;
   };
 
+  // Get donation QR code URL
+  const getDonationQrUrl = () => {
+    if (!candidate?.slug) return '#';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://binirman.test/api/v1';
+    const baseUrl = apiUrl.replace('/api/v1', '');
+    return `${baseUrl}/c/${candidate.slug}/donation`;
+  };
+
   if (!candidate) {
     return null;
   }
@@ -315,6 +334,7 @@ export default function CandidateOverviewPage() {
           <AdditionalDetails
             candidate={candidate}
             getFeedbackQrUrl={getFeedbackQrUrl}
+            getDonationQrUrl={getDonationQrUrl}
           />
         </div>
       </div>
@@ -326,6 +346,7 @@ export default function CandidateOverviewPage() {
             candidate={candidate}
             getLandingPageUrl={getLandingPageUrl}
             getFeedbackQrUrl={getFeedbackQrUrl}
+            getDonationQrUrl={getDonationQrUrl}
           />
         </div>
       </div>

@@ -27,6 +27,33 @@ Route::get('/c/{slug}/feedback', function ($slug) {
     ]);
 })->name('candidate.feedback.qr');
 
+// Public donation form by candidate ID: /c/{id}/donate
+Route::get('/c/{candidate}/donate', function (Candidate $candidate) {
+    $candidate->load(['party', 'constituency.district']);
+    $baseUrl = config('app.url') ?? url('/');
+    
+    return view('candidate.donation-form', [
+        'candidate' => $candidate,
+        'baseUrl' => $baseUrl,
+    ]);
+})->whereNumber('candidate')->name('candidate.donation.form');
+
+// Donation QR code page by candidate slug: /c/{slug}/donation
+Route::get('/c/{slug}/donation', function ($slug) {
+    $candidate = Candidate::where('slug', $slug)
+        ->with(['party', 'constituency.district'])
+        ->firstOrFail();
+    
+    $baseUrl = config('app.url') ?? url('/');
+    $donationUrl = $baseUrl . '/c/' . $candidate->id . '/donate';
+
+    return view('candidate.donation-qr', [
+        'candidate' => $candidate,
+        'donationUrl' => $donationUrl,
+        'baseUrl' => $baseUrl,
+    ]);
+})->name('candidate.donation.qr');
+
 // Candidate landing page route - /c/{slug}
 Route::get('/c/{slug}', function ($slug) {
     $candidate = Candidate::where('slug', $slug)
