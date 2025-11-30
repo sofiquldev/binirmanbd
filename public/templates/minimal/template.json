@@ -1,0 +1,57 @@
+{
+  "name": "Minimal Connect",
+  "slug": "minimal",
+  "version": "1.0.0",
+  "description": "Political Campaign HTML5 Template - Modern and professional design for political candidates",
+  "author": "Coderfleek",
+  "preview_image": "thumb.jpg",
+  "entry_file": "index.html",
+  "assets_path": "assets",
+  "variables": {
+    "candidate_name": "{{candidate.name}}",
+    "candidate_name_bn": "{{candidate.name_bn}}",
+    "candidate_image": "{{candidate.image}}",
+    "candidate_slogan": "{{candidate.campaign_slogan}}",
+    "candidate_slogan_bn": "{{candidate.campaign_slogan_bn}}",
+    "candidate_about": "{{candidate.about}}",
+    "candidate_about_bn": "{{candidate.about_bn}}",
+    "candidate_history": "{{candidate.history}}",
+    "candidate_history_bn": "{{candidate.history_bn}}",
+    "candidate_goals": "{{candidate.campaign_goals}}",
+    "candidate_goals_bn": "{{candidate.campaign_goals_bn}}",
+    "party_name": "{{candidate.party.name}}",
+    "party_name_bn": "{{candidate.party.name_bn}}",
+    "constituency_name": "{{candidate.constituency.name}}",
+    "constituency_name_bn": "{{candidate.constituency.name_bn}}",
+    "donation_url": "{{url('/c/' ~ candidate.id ~ '/donate')}}",
+    "feedback_url": "{{url('/c/' ~ candidate.id ~ '/f')}}",
+    "base_url": "{{url('/')}}"
+  },
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "file": "sections/hero.html"
+    },
+    "about": {
+      "enabled": true,
+      "file": "sections/about.html"
+    },
+    "campaign": {
+      "enabled": true,
+      "file": "sections/campaign.html"
+    },
+    "testimonials": {
+      "enabled": true,
+      "file": "sections/testimonials.html"
+    },
+    "team": {
+      "enabled": false,
+      "file": "sections/team.html"
+    },
+    "blog": {
+      "enabled": false,
+      "file": "sections/blog.html"
+    }
+  }
+}
+

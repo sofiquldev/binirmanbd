@@ -86,10 +86,16 @@ Route::prefix('v1')->group(function () {
         // Districts (for admin selects)
         Route::get('/districts', [DistrictController::class, 'index']);
 
+        // Templates (list available to all authenticated users, upload/show for super admin only)
+        Route::get('/templates', [TemplateController::class, 'index']);
+        Route::middleware(['ability:' . User::ROLE_SUPER_ADMIN])->group(function () {
+            Route::post('/templates/upload', [TemplateController::class, 'upload']);
+            Route::get('/templates/{slug}', [TemplateController::class, 'show']);
+        });
+
         // Users (admin only)
         Route::middleware(['ability:' . User::ROLE_SUPER_ADMIN])->group(function () {
             Route::apiResource('users', UserController::class);
-            Route::apiResource('templates', TemplateController::class);
         });
 
         // Admin feedback management

@@ -4,126 +4,99 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Template;
+use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TemplateController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    protected TemplateService $templateService;
+
+    public function __construct(TemplateService $templateService)
     {
-        $query = Template::query();
+        $this->templateService = $templateService;
+    }
 
-        // Filter active only
-        if ($request->has('active_only') && $request->boolean('active_only')) {
-            $query->where('is_active', true);
-        }
-
-        // Search
-        if ($request->has('search')) {
-            $search = $request->get('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+    /**
+     * Get all available templates
+     * Returns templates from database (active templates only)
+     */
+    public function index()
+    {
+        $templates = Template::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($template) {
+                return [
+                    'id' => $template->id,
+                    'name' => $template->name,
+                    'slug' => $template->slug,
+                    'description' => $template->description,
+                    'preview_image' => $template->preview_image,
+                    'is_active' => $template->is_active,
+                ];
             });
-        }
-
-        $templates = $query->latest()
-            ->paginate($request->get('per_page', 15));
-
-        return response()->json($templates);
+        
+        return response()->json([
+            'data' => $templates,
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Upload and install template from ZIP
      */
-    public function store(Request $request)
+    public function upload(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:templates,slug',
-            'description' => 'nullable|string|max:500',
-            'preview_image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean',
+        $request->validate([
+            'template_zip' => 'required|file|mimes:zip|max:10240', // 10MB max
+            'slug' => 'nullable|string|max:255',
         ]);
 
-        // Handle preview image upload
-        if ($request->hasFile('preview_image')) {
-            $imagePath = $request->file('preview_image')->store('templates', 'public');
-            $validated['preview_image'] = Storage::disk('public')->url($imagePath);
-        }
+        $file = $request->file('template_zip');
+        $templateSlug = $request->input('slug') ?? Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
 
-        $template = Template::create($validated);
+        // Store uploaded file temporarily
+        $tempPath = $file->storeAs('temp', $file->getClientOriginalName(), 'local');
 
-        return response()->json($template, 201);
-    }
+        try {
+            $fullPath = storage_path('app/' . $tempPath);
+            $this->templateService->installTemplateFromZip($fullPath, $templateSlug);
+            
+            // Delete temporary file
+            Storage::disk('local')->delete($tempPath);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $template = Template::findOrFail($id);
-        return response()->json($template);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $template = Template::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'slug' => ['sometimes', 'required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('templates')->ignore($template->id)],
-            'description' => 'nullable|string|max:500',
-            'preview_image' => 'nullable|image|max:2048',
-            'is_active' => 'sometimes|boolean',
-        ]);
-
-        // Handle preview image upload
-        if ($request->hasFile('preview_image')) {
-            // Delete old image if exists
-            if ($template->preview_image) {
-                $oldPath = str_replace('/storage/', '', parse_url($template->preview_image, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $imagePath = $request->file('preview_image')->store('templates', 'public');
-            $validated['preview_image'] = Storage::disk('public')->url($imagePath);
-        }
-
-        $template->update($validated);
-
-        return response()->json($template);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $template = Template::findOrFail($id);
-
-        // Check if template is being used by any candidates
-        if ($template->candidates()->count() > 0) {
             return response()->json([
-                'error' => 'Cannot delete template that is assigned to candidates.'
+                'message' => 'Template installed successfully',
+                'data' => [
+                    'slug' => $templateSlug,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            // Delete temporary file on error
+            Storage::disk('local')->delete($tempPath);
+            
+            return response()->json([
+                'message' => 'Failed to install template: ' . $e->getMessage(),
             ], 422);
         }
+    }
 
-        // Delete preview image if exists
-        if ($template->preview_image) {
-            $oldPath = str_replace('/storage/', '', parse_url($template->preview_image, PHP_URL_PATH));
-            Storage::disk('public')->delete($oldPath);
+    /**
+     * Get template configuration
+     */
+    public function show(string $slug)
+    {
+        $config = $this->templateService->getTemplateConfig($slug);
+        
+        if (!$config) {
+            return response()->json([
+                'message' => 'Template not found',
+            ], 404);
         }
 
-        $template->delete();
-
-        return response()->json(['message' => 'Template deleted successfully']);
+        return response()->json([
+            'data' => $config,
+        ]);
     }
 }

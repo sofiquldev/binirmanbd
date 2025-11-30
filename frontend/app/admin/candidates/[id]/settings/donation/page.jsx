@@ -97,13 +97,46 @@ export default function DonationSettingsPage() {
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://binirman.test/api/v1';
     const baseUrl = apiUrl.replace('/api/v1', '');
     const donationUrl = `${baseUrl}/c/${candidateId}/donate`;
-    navigator.clipboard.writeText(donationUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(donationUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = donationUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          } else {
+            toast.error('Failed to copy URL');
+          }
+        } catch (err) {
+          toast.error('Failed to copy URL');
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast.error('Failed to copy URL');
+    }
   };
 
   const togglePaymentMethod = (methodCode) => {
@@ -414,41 +447,50 @@ export default function DonationSettingsPage() {
           {/* Payment Methods - Accordion with Privacy Settings Style */}
           <div className="space-y-4">
             <h3 className="text-base font-semibold">Payment Methods</h3>
-            <Card>
+            <Card className="border-none">
               <CardContent className="p-0">
                 {paymentMethods.length === 0 ? (
                   <div className="p-6 text-center text-sm text-muted-foreground">
                     No payment methods available. Please add payment methods from Settings.
                   </div>
                 ) : (
-                  <Accordion type="multiple" className="w-full">
+                  <Accordion type="multiple" className="w-full space-y-3" indicator="none">
                     {paymentMethods.map((method) => {
                       const isEnabled = formData.enabled_payment_methods?.includes(method.code);
                       const methodConfig = formData.payment_method_configs[method.code] || {};
                       const Icon = CreditCard; // You can customize this based on method type
+                      const isOnline = method.is_online;
 
                       return (
-                        <AccordionItem key={method.id} value={`method-${method.id}`} className="border-b border-border">
-                          <div className="flex items-center justify-between py-4 gap-2.5 px-6">
-                            <div className="flex items-center gap-3.5 flex-1">
-                              <HexagonBadge
-                                stroke="stroke-input"
-                                fill="fill-muted/30"
-                                size="size-[50px]"
-                                badge={<Icon className="text-xl text-muted-foreground" />}
-                              />
-                              <div className="flex flex-col gap-1.5 flex-1">
-                                <span className="flex items-center gap-1.5 leading-none font-medium text-sm text-mono">
-                                  {methodConfig.name || method.name}
-                                  {method.name_bn && !methodConfig.name && ` (${method.name_bn})`}
-                                </span>
-                                <span className="text-sm text-secondary-foreground">
-                                  {method.description || `Configure ${methodConfig.name || method.name} payment settings`}
-                                </span>
+                        <AccordionItem 
+                          key={method.id} 
+                          value={`method-${method.id}`} 
+                          className="border border-border rounded-lg bg-card"
+                        >
+                          <div className="flex items-center justify-between px-6 py-4 gap-4">
+                            <AccordionTrigger className="flex-1 hover:no-underline py-0 text-left">
+                              <div className="flex items-center gap-4 flex-1 min-w-0 text-left">
+                                <HexagonBadge
+                                  stroke="stroke-input"
+                                  fill="fill-muted/30"
+                                  size="size-[50px]"
+                                  badge={<Icon className="text-xl text-muted-foreground" />}
+                                />
+                                <div className="flex flex-col gap-1 flex-1 min-w-0 text-left">
+                                  <span className="font-medium text-sm text-foreground leading-tight text-left">
+                                    {methodConfig.name || method.name}
+                                    {method.name_bn && !methodConfig.name && (
+                                      <span className="text-muted-foreground font-normal"> ({method.name_bn})</span>
+                                    )}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground leading-tight text-left">
+                                    {method.description || `Configure ${methodConfig.name || method.name} payment settings`}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2.5">
-                              <Label htmlFor={`publish-${method.id}`} className="text-sm">
+                            </AccordionTrigger>
+                            <div className="flex items-center gap-2.5 shrink-0">
+                              <Label htmlFor={`publish-${method.id}`} className="text-sm whitespace-nowrap text-left">
                                 Publish
                               </Label>
                               <Switch
@@ -460,357 +502,436 @@ export default function DonationSettingsPage() {
                               />
                             </div>
                           </div>
-                          <AccordionContent className="px-6 pb-4">
-                            <div className="space-y-4 pt-2">
-                              {/* Common Fields for All Payment Methods */}
-                              <div className="space-y-4 border-b border-border pb-4">
-                                <h4 className="text-sm font-semibold text-foreground">
-                                  General Settings
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`name-${method.id}`}>
-                                      Display Name <span className="text-muted-foreground">(Optional)</span>
-                                    </Label>
-                                    <Input
-                                      id={`name-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.name || method.name || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(method.code, 'name', e.target.value)
-                                      }
-                                      placeholder={method.name || 'Enter display name'}
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                      Custom name for this payment method (defaults to system name)
-                                    </p>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`icon-${method.id}`}>Icon URL</Label>
-                                    <Input
-                                      id={`icon-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.icon_url || method.icon || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'icon_url',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="https://example.com/icon.png"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                      URL to the payment method icon/image
-                                    </p>
-                                  </div>
-                                  <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor={`endpoint-${method.id}`}>
-                                      API Endpoint <span className="text-muted-foreground">(Optional)</span>
-                                    </Label>
-                                    <Input
-                                      id={`endpoint-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.endpoint || methodConfig.api_endpoint || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'endpoint',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="https://api.example.com/payment"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                      Payment gateway API endpoint URL
-                                    </p>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`merchant-id-${method.id}`}>
-                                      Merchant ID <span className="text-muted-foreground">(Optional)</span>
-                                    </Label>
-                                    <Input
-                                      id={`merchant-id-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.merchant_id || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'merchant_id',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="Enter merchant ID"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`webhook-url-${method.id}`}>
-                                      Webhook URL <span className="text-muted-foreground">(Optional)</span>
-                                    </Label>
-                                    <Input
-                                      id={`webhook-url-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.webhook_url || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'webhook_url',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="https://your-domain.com/webhook/payment"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                      URL to receive payment callbacks
-                                    </p>
+                          <AccordionContent className="px-6 pb-4 text-left">
+                            <div className="space-y-4 pt-2 text-left">
+                              {/* Online Payment Gateway Configuration */}
+                              {isOnline && (
+                                <div className="space-y-4 border-b border-border pb-4">
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    Payment Gateway Configuration
+                                  </h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`api-key-${method.id}`}>
+                                        API Key / Secret Key
+                                      </Label>
+                                      <Input
+                                        id={`api-key-${method.id}`}
+                                        type="password"
+                                        value={methodConfig.api_key || methodConfig.key || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'api_key',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Enter API key"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Your payment gateway API key
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`gateway-id-${method.id}`}>
+                                        Gateway ID / Merchant ID
+                                      </Label>
+                                      <Input
+                                        id={`gateway-id-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.gateway_id || methodConfig.merchant_id || methodConfig.id || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'gateway_id',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Enter gateway/merchant ID"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Your payment gateway merchant/gateway ID
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`webhook-${method.id}`}>
+                                        Webhook URL
+                                      </Label>
+                                      <Input
+                                        id={`webhook-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.webhook || methodConfig.webhook_url || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'webhook',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="https://your-domain.com/webhook/payment"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        URL to receive payment webhooks
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`callback-${method.id}`}>
+                                        Callback URL
+                                      </Label>
+                                      <Input
+                                        id={`callback-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.callback || methodConfig.callback_url || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'callback',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="https://your-domain.com/payment/callback"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        URL for payment success/failure callbacks
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
+                              )}
+
+                              {/* Offline Payment Method Configuration */}
+                              {!isOnline && 
+                                method.code !== 'bkash' && 
+                                method.code !== 'nagad' && 
+                                method.code !== 'rocket' &&
+                                method.code !== 'bank' && (
+                                <div className="space-y-4 border-b border-border pb-4">
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    Payment Method Configuration
+                                  </h4>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`name-${method.id}`}>
+                                        Name / Account Name
+                                      </Label>
+                                      <Input
+                                        id={`name-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.name || methodConfig.account_name || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'name',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Enter account/payment name"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Name for this payment method
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`id-${method.id}`}>
+                                        ID / Account Number
+                                      </Label>
+                                      <Input
+                                        id={`id-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.id || methodConfig.account_number || methodConfig.account_id || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'id',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Enter account number or ID"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Account number, phone number, or payment ID
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`type-${method.id}`}>
+                                        Type
+                                      </Label>
+                                      <Input
+                                        id={`type-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.type || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'type',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Personal, Merchant, etc."
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Payment account type
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor={`branch-${method.id}`}>
+                                        Branch / Location
+                                      </Label>
+                                      <Input
+                                        id={`branch-${method.id}`}
+                                        type="text"
+                                        value={methodConfig.branch || methodConfig.location || ''}
+                                        onChange={(e) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'branch',
+                                            e.target.value
+                                          )
+                                        }
+                                        placeholder="Enter branch or location"
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Branch name or location (for bank transfers)
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Method-Specific Configuration */}
                               <div className="space-y-4 pt-2">
                                 <h4 className="text-sm font-semibold text-foreground">
-                                  Method-Specific Settings
+                                  Additional Settings
                                 </h4>
 
-                                {/* SSLCommerz Configuration */}
-                              {method.code === 'sslcommerz' && (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`store-id-${method.id}`}>Store ID</Label>
-                                    <Input
-                                      id={`store-id-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.sslcommerz_store_id || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'sslcommerz_store_id',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="Enter SSLCommerz Store ID"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`store-password-${method.id}`}>
-                                      Store Password
-                                    </Label>
-                                    <Input
-                                      id={`store-password-${method.id}`}
-                                      type="password"
-                                      value={methodConfig.sslcommerz_store_password || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'sslcommerz_store_password',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="Enter SSLCommerz Store Password"
-                                    />
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                      <Label>Sandbox Mode</Label>
-                                      <p className="text-sm text-muted-foreground">
-                                        Use sandbox environment for testing
-                                      </p>
-                                    </div>
-                                    <Switch
-                                      checked={methodConfig.sslcommerz_is_sandbox ?? true}
-                                      onCheckedChange={(checked) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'sslcommerz_is_sandbox',
-                                          checked
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                </>
-                              )}
-
-                              {/* Bank Transfer Configuration */}
-                              {method.code === 'bank' && (
-                                <>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                      <Label htmlFor={`bank-name-${method.id}`}>Bank Name</Label>
-                                      <Input
-                                        id={`bank-name-${method.id}`}
-                                        type="text"
-                                        value={methodConfig.bank_name || ''}
-                                        onChange={(e) =>
-                                          updatePaymentMethodConfig(
-                                            method.code,
-                                            'bank_name',
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder="Enter bank name"
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label htmlFor={`account-name-${method.id}`}>
-                                        Account Name
-                                      </Label>
-                                      <Input
-                                        id={`account-name-${method.id}`}
-                                        type="text"
-                                        value={methodConfig.bank_account_name || ''}
-                                        onChange={(e) =>
-                                          updatePaymentMethodConfig(
-                                            method.code,
-                                            'bank_account_name',
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder="Enter account name"
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label htmlFor={`account-number-${method.id}`}>
-                                        Account Number
-                                      </Label>
-                                      <Input
-                                        id={`account-number-${method.id}`}
-                                        type="text"
-                                        value={methodConfig.bank_account_number || ''}
-                                        onChange={(e) =>
-                                          updatePaymentMethodConfig(
-                                            method.code,
-                                            'bank_account_number',
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder="Enter account number"
-                                      />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label htmlFor={`routing-number-${method.id}`}>
-                                        Routing Number
-                                      </Label>
-                                      <Input
-                                        id={`routing-number-${method.id}`}
-                                        type="text"
-                                        value={methodConfig.bank_routing_number || ''}
-                                        onChange={(e) =>
-                                          updatePaymentMethodConfig(
-                                            method.code,
-                                            'bank_routing_number',
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder="Enter routing number"
-                                      />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                      <Label htmlFor={`bank-branch-${method.id}`}>Branch</Label>
-                                      <Input
-                                        id={`bank-branch-${method.id}`}
-                                        type="text"
-                                        value={methodConfig.bank_branch || ''}
-                                        onChange={(e) =>
-                                          updatePaymentMethodConfig(
-                                            method.code,
-                                            'bank_branch',
-                                            e.target.value
-                                          )
-                                        }
-                                        placeholder="Enter branch name"
-                                      />
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              {/* bKash Configuration */}
-                              {method.code === 'bkash' && (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`bkash-number-${method.id}`}>bKash Number</Label>
-                                    <Input
-                                      id={`bkash-number-${method.id}`}
-                                      type="text"
-                                      value={methodConfig.bkash_number || ''}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'bkash_number',
-                                          e.target.value
-                                        )
-                                      }
-                                      placeholder="01XXXXXXXXX"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor={`bkash-type-${method.id}`}>
-                                      Account Type
-                                    </Label>
-                                    <select
-                                      id={`bkash-type-${method.id}`}
-                                      value={methodConfig.bkash_account_type || 'personal'}
-                                      onChange={(e) =>
-                                        updatePaymentMethodConfig(
-                                          method.code,
-                                          'bkash_account_type',
-                                          e.target.value
-                                        )
-                                      }
-                                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    >
-                                      <option value="personal">Personal</option>
-                                      <option value="merchant">Merchant</option>
-                                    </select>
-                                  </div>
-                                </>
-                              )}
-
-                              {/* Generic API Key / Auth fields for other methods */}
-                              {method.requires_credentials &&
-                                method.code !== 'sslcommerz' &&
-                                method.code !== 'bank' &&
-                                method.code !== 'bkash' && (
+                                {/* SSLCommerz Specific Configuration */}
+                                {method.code === 'sslcommerz' && (
                                   <>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                       <div className="space-y-2">
-                                        <Label htmlFor={`api-key-${method.id}`}>API Key</Label>
+                                        <Label htmlFor={`store-id-${method.id}`}>Store ID</Label>
                                         <Input
-                                          id={`api-key-${method.id}`}
-                                          type="password"
-                                          value={methodConfig.api_key || ''}
+                                          id={`store-id-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.sslcommerz_store_id || methodConfig.gateway_id || ''}
                                           onChange={(e) =>
                                             updatePaymentMethodConfig(
                                               method.code,
-                                              'api_key',
+                                              'sslcommerz_store_id',
                                               e.target.value
                                             )
                                           }
-                                          placeholder="Enter API key"
+                                          placeholder="Enter SSLCommerz Store ID"
                                         />
                                       </div>
                                       <div className="space-y-2">
-                                        <Label htmlFor={`api-secret-${method.id}`}>
-                                          API Secret
+                                        <Label htmlFor={`store-password-${method.id}`}>
+                                          Store Password
                                         </Label>
                                         <Input
-                                          id={`api-secret-${method.id}`}
+                                          id={`store-password-${method.id}`}
                                           type="password"
-                                          value={methodConfig.api_secret || ''}
+                                          value={methodConfig.sslcommerz_store_password || methodConfig.api_key || ''}
                                           onChange={(e) =>
                                             updatePaymentMethodConfig(
                                               method.code,
-                                              'api_secret',
+                                              'sslcommerz_store_password',
                                               e.target.value
                                             )
                                           }
-                                          placeholder="Enter API secret"
+                                          placeholder="Enter SSLCommerz Store Password"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                      <div className="space-y-0.5">
+                                        <Label>Sandbox Mode</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                          Use sandbox environment for testing
+                                        </p>
+                                      </div>
+                                      <Switch
+                                        checked={methodConfig.sslcommerz_is_sandbox ?? true}
+                                        onCheckedChange={(checked) =>
+                                          updatePaymentMethodConfig(
+                                            method.code,
+                                            'sslcommerz_is_sandbox',
+                                            checked
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Bank Transfer Specific Configuration */}
+                                {method.code === 'bank' && (
+                                  <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`bank-name-${method.id}`}>Bank Name</Label>
+                                        <Input
+                                          id={`bank-name-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.bank_name || methodConfig.name || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              'bank_name',
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter bank name"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`account-name-${method.id}`}>
+                                          Account Name
+                                        </Label>
+                                        <Input
+                                          id={`account-name-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.bank_account_name || methodConfig.account_name || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              'bank_account_name',
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter account name"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`account-number-${method.id}`}>
+                                          Account Number
+                                        </Label>
+                                        <Input
+                                          id={`account-number-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.bank_account_number || methodConfig.id || methodConfig.account_number || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              'bank_account_number',
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter account number"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`routing-number-${method.id}`}>
+                                          Routing Number
+                                        </Label>
+                                        <Input
+                                          id={`routing-number-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.bank_routing_number || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              'bank_routing_number',
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter routing number"
+                                        />
+                                      </div>
+                                      <div className="space-y-2 md:col-span-2">
+                                        <Label htmlFor={`bank-branch-${method.id}`}>Branch</Label>
+                                        <Input
+                                          id={`bank-branch-${method.id}`}
+                                          type="text"
+                                          value={methodConfig.bank_branch || methodConfig.branch || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              'bank_branch',
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter branch name"
                                         />
                                       </div>
                                     </div>
                                   </>
                                 )}
+
+                                {/* bKash, Nagad, Rocket Specific Configuration */}
+                                {(method.code === 'bkash' || method.code === 'nagad' || method.code === 'rocket') && (
+                                  <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`number-${method.id}`}>
+                                          {method.code === 'bkash' ? 'bKash' : method.code === 'nagad' ? 'Nagad' : 'Rocket'} Number
+                                        </Label>
+                                        <Input
+                                          id={`number-${method.id}`}
+                                          type="text"
+                                          value={methodConfig[`${method.code}_number`] || methodConfig.id || methodConfig.number || ''}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              `${method.code}_number`,
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="01XXXXXXXXX"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor={`type-${method.id}`}>
+                                          Account Type
+                                        </Label>
+                                        <select
+                                          id={`type-${method.id}`}
+                                          value={methodConfig[`${method.code}_account_type`] || methodConfig.type || 'personal'}
+                                          onChange={(e) =>
+                                            updatePaymentMethodConfig(
+                                              method.code,
+                                              `${method.code}_account_type`,
+                                              e.target.value
+                                            )
+                                          }
+                                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        >
+                                          <option value="personal">Personal</option>
+                                          <option value="agent">Agent</option>
+                                          <option value="merchant">Merchant</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Generic API Key / Auth fields for other online methods */}
+                                {isOnline &&
+                                  method.requires_credentials &&
+                                  method.code !== 'sslcommerz' && (
+                                    <>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <Label htmlFor={`api-secret-${method.id}`}>
+                                            API Secret
+                                          </Label>
+                                          <Input
+                                            id={`api-secret-${method.id}`}
+                                            type="password"
+                                            value={methodConfig.api_secret || ''}
+                                            onChange={(e) =>
+                                              updatePaymentMethodConfig(
+                                                method.code,
+                                                'api_secret',
+                                                e.target.value
+                                              )
+                                            }
+                                            placeholder="Enter API secret"
+                                          />
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
 
                                 {/* Additional Notes/Description */}
                                 <div className="space-y-2 pt-2">

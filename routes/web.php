@@ -60,5 +60,13 @@ Route::get('/c/{slug}', function ($slug) {
         ->with(['template', 'party', 'constituency', 'tenant'])
         ->firstOrFail();
 
-    return view('candidate.landing', compact('candidate'));
+    $templateService = app(\App\Services\TemplateService::class);
+    
+    try {
+        $html = $templateService->renderTemplate($candidate);
+        return response($html)->header('Content-Type', 'text/html');
+    } catch (\Exception $e) {
+        // Fallback to default view if template rendering fails
+        return view('candidate.landing', compact('candidate'));
+    }
 })->name('candidate.landing');

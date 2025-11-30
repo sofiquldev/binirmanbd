@@ -3,7 +3,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useTheme } from 'next-themes';
 import {
   ExternalLink,
   ArrowLeft,
@@ -36,8 +35,6 @@ function UserHero({
   candidate,
   router,
 }) {
-  const { theme } = useTheme();
-
   const buildInfo = (info) => {
     return info.map((item, index) => {
       return (
@@ -72,13 +69,8 @@ function UserHero({
 
   return (
     <div
-      className="bg-center bg-cover bg-no-repeat"
-      style={{
-        backgroundImage:
-          theme === 'dark'
-            ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
-            : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-      }}
+      className="bg-center bg-cover bg-no-repeat bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900"
+      suppressHydrationWarning
     >
       <div className="container">
         <div className="flex flex-col items-center gap-2 lg:gap-3.5 py-4 lg:pt-5 lg:pb-10">
@@ -286,14 +278,16 @@ function TabNavigation({ candidateId, activeTab, candidate, router }) {
               </a>
             </Button>
           )}
-          <Button
-            onClick={() => router.push(`/admin/candidates/${candidate.id}/settings`)}
-            className="max-md:px-2 max-md:[&>span]:hidden"
-            aria-label="Edit candidate settings"
-          >
-            <Settings className="size-4 max-md:me-0 me-2" />
-            <span className="max-md:hidden">Settings</span>
-          </Button>
+          {candidate?.id && (
+            <Button
+              onClick={() => router.push(`/admin/candidates/${candidate.id}/settings`)}
+              className="max-md:px-2 max-md:[&>span]:hidden"
+              aria-label="Edit candidate settings"
+            >
+              <Settings className="size-4 max-md:me-0 me-2" />
+              <span className="max-md:hidden">Settings</span>
+            </Button>
+          )}
         </div>
       </nav>
     </div>
@@ -307,7 +301,7 @@ export default function CandidateLayout({ children }) {
   const { candidate, loading, fetchCandidate } = useCandidatesStore();
   const candidateId = params.id;
   
-  // Entity modal state
+  // Entity modal state - MUST be called unconditionally before any early returns
   const [entityModal, setEntityModal] = useState({
     open: false,
     type: null,
@@ -335,80 +329,126 @@ export default function CandidateLayout({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateId]);
 
+  // Build hero image - use useMemo to ensure stable reference
+  const image = useMemo(() => {
+    if (candidate?.image) {
+      return (
+        <img
+          src={candidate.image}
+          alt={candidate.name}
+          className="rounded-full border-3 border-green-500 size-[100px] shrink-0 object-cover"
+        />
+      );
+    }
+    if (candidate) {
+      return (
+        <div className="flex items-center justify-center rounded-full border-3 border-green-500 size-[100px] shrink-0 bg-accent/60">
+          <span className="text-3xl font-semibold text-muted-foreground">
+            {candidate.name?.charAt(0) || 'C'}
+          </span>
+        </div>
+      );
+    }
+    return <Skeleton className="rounded-full size-[100px] shrink-0" />;
+  }, [candidate?.image, candidate?.name, candidate]);
+
+  // Build hero info with clickable party and constituency - use useMemo to ensure stable reference
+  const heroInfo = useMemo(() => {
+    if (!candidate) return [];
+    
+    return [
+      candidate?.party && {
+        label: candidate.party.name,
+        icon: Users,
+        onClick: () => {
+          setEntityModal({
+            open: true,
+            type: 'party',
+            id: candidate.party.id,
+          });
+        },
+      },
+      candidate?.constituency && {
+        label: candidate.constituency.name,
+        icon: MapPin,
+        onClick: () => {
+          setEntityModal({
+            open: true,
+            type: 'constituency',
+            id: candidate.constituency.id,
+          });
+        },
+      },
+      candidate?.email && { email: candidate.email, icon: Mail },
+    ].filter(Boolean);
+  }, [candidate]);
+
   // Loading state
   if (loading && !candidate) {
     return (
-      <div className="container">
-        <div className="grid gap-5 lg:gap-7.5">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-96" />
+      <Fragment>
+        <UserHero
+          name=""
+          image={image}
+          info={heroInfo}
+          candidateId={candidateId}
+          activeTab={activeTab}
+          candidate={null}
+          router={router}
+        />
+        <div className="container">
+          <div className="grid gap-5 lg:gap-7.5">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-96" />
+          </div>
         </div>
-      </div>
+        <EntityDetailModal
+          open={entityModal.open}
+          onOpenChange={(open) => setEntityModal({ ...entityModal, open })}
+          type={entityModal.type}
+          id={entityModal.id}
+        />
+      </Fragment>
     );
   }
 
   // Not found state
   if (!candidate) {
     return (
-      <div className="container">
-        <div className="grid gap-5 lg:gap-7.5">
-          <div className="text-center py-12">
-            <p className="text-secondary-foreground">Candidate not found</p>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => router.push('/admin/candidates')}
-            >
-              <ArrowLeft className="size-4 me-2" />
-              Back to Candidates
-            </Button>
+      <Fragment>
+        <UserHero
+          name=""
+          image={image}
+          info={heroInfo}
+          candidateId={candidateId}
+          activeTab={activeTab}
+          candidate={null}
+          router={router}
+        />
+        <div className="container">
+          <div className="grid gap-5 lg:gap-7.5">
+            <div className="text-center py-12">
+              <p className="text-secondary-foreground">Candidate not found</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => router.push('/admin/candidates')}
+              >
+                <ArrowLeft className="size-4 me-2" />
+                Back to Candidates
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+        <EntityDetailModal
+          open={entityModal.open}
+          onOpenChange={(open) => setEntityModal({ ...entityModal, open })}
+          type={entityModal.type}
+          id={entityModal.id}
+        />
+      </Fragment>
     );
   }
-
-  // Build hero image
-  const image = candidate.image ? (
-    <img
-      src={candidate.image}
-      alt={candidate.name}
-      className="rounded-full border-3 border-green-500 size-[100px] shrink-0 object-cover"
-    />
-  ) : (
-    <div className="flex items-center justify-center rounded-full border-3 border-green-500 size-[100px] shrink-0 bg-accent/60">
-      <span className="text-3xl font-semibold text-muted-foreground">
-        {candidate.name?.charAt(0) || 'C'}
-      </span>
-    </div>
-  );
-
-  // Build hero info with clickable party and constituency
-  const heroInfo = [
-    candidate?.party && {
-      label: candidate.party.name,
-      icon: Users,
-      onClick: () => {
-        setEntityModal({
-          open: true,
-          type: 'party',
-          id: candidate.party.id,
-        });
-      },
-    },
-    candidate?.constituency && {
-      label: candidate.constituency.name,
-      icon: MapPin,
-      onClick: () => {
-        setEntityModal({
-          open: true,
-          type: 'constituency',
-          id: candidate.constituency.id,
-        });
-      },
-    },
-    candidate?.email && { email: candidate.email, icon: Mail },
-  ].filter(Boolean);
 
   return (
     <Fragment>
