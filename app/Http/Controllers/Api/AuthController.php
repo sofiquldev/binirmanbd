@@ -76,7 +76,12 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $user = $request->user()->load('roles');
+        // Load roles, the linked candidate (if any), and all assigned candidates
+        $user = $request->user()->load([
+            'roles',
+            'candidate', // user belongsTo Candidate via candidate_id (backward compatibility)
+            'candidates', // many-to-many relationship
+        ]);
         
         return response()->json([
             'user' => $user,

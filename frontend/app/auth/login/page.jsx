@@ -42,8 +42,43 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await login(values.email, values.password);
-      router.push('/dashboard');
+      const data = await login(values.email, values.password);
+      
+      // Check if user has candidates assigned
+      try {
+        const api = (await import('@/lib/api')).default;
+        const response = await api.get('/candidates/my-candidates');
+        const candidates = response.data.data || [];
+        
+        // Include single candidate_id if available (backward compatibility)
+        let allCandidates = candidates;
+        if (data.user?.candidate && !allCandidates.find(c => c.id === data.user.candidate.id)) {
+          allCandidates = [...candidates, data.user.candidate];
+        }
+        
+        // Remove duplicates
+        allCandidates = allCandidates.filter((c, index, self) => 
+          index === self.findIndex((t) => t.id === c.id)
+        );
+
+        if (allCandidates.length > 1) {
+          // Multiple candidates - redirect to selection page
+          router.push('/candidate/select');
+        } else if (allCandidates.length === 1) {
+          // Single candidate - auto-select and redirect to candidate dashboard
+          const candidate = allCandidates[0];
+          localStorage.setItem('selected_candidate_id', candidate.id.toString());
+          localStorage.setItem('selected_candidate', JSON.stringify(candidate));
+          router.push('/candidate/dashboard');
+        } else {
+          // No candidates - redirect to main dashboard
+          router.push('/dashboard');
+        }
+      } catch (candidateError) {
+        // If candidate check fails, just go to dashboard
+        console.error('Failed to check candidates:', candidateError);
+        router.push('/dashboard');
+      }
     } catch (err) {
       // Handle validation errors (422)
       if (err.response?.status === 422) {

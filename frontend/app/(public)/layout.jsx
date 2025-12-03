@@ -11,12 +11,17 @@ const notoSansBengali = Noto_Sans_Bengali({
 
 export default function PublicLayout({ children }) {
   return (
-    <html lang="en" className={cn('h-full', inter.variable, notoSansBengali.variable)}>
+    <html 
+      lang="en" 
+      className={cn('h-full', inter.variable, notoSansBengali.variable)}
+      suppressHydrationWarning
+    >
       <body
         className={cn(
           'antialiased flex h-full text-base text-foreground bg-background',
           inter.className
         )}
+        suppressHydrationWarning
       >
         {children}
       </body>

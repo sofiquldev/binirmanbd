@@ -1,28 +1,443 @@
 'use client';
 
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import api from '@/lib/api';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DataPagination } from '@/components/ui/data-pagination';
+import { Combobox } from '@/components/ui/combobox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { FeedbackDetailModal } from '@/components/feedback/FeedbackDetailModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSelectedCandidate } from '@/hooks/useSelectedCandidate';
+import {
+  Search,
+  X,
+  MessageSquare,
+  Eye,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUpDown,
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+const STATUS_COLORS = {
+  new: 'bg-blue-100 text-blue-800',
+  in_review: 'bg-yellow-100 text-yellow-800',
+  assigned: 'bg-purple-100 text-purple-800',
+  resolved: 'bg-green-100 text-green-800',
+};
 
 export default function CandidateFeedbackPage() {
+  const { user, loading: authLoading } = useAuth();
+  const { candidate, loading: candidateLoading } = useSelectedCandidate();
+  const [feedback, setFeedback] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    per_page: 15,
+    total: 0,
+    last_page: 1,
+  });
+
+  // Filters
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [selectedItems, setSelectedItems] = useState(new Set());
+  const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' });
+
+  useEffect(() => {
+    if (authLoading || candidateLoading) return;
+    if (!candidate) {
+      // No candidate assigned to this user
+      setLoading(false);
+      return;
+    }
+    fetchFeedback();
+  }, [authLoading, candidateLoading, candidate, pagination.page, pagination.per_page, search, status]);
+
+  const fetchFeedback = async () => {
+    if (!candidate) return;
+
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        per_page: pagination.per_page.toString(),
+        candidate_id: candidate.id,
+      });
+
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+
+      const res = await api.get(`/admin/feedback?${params}`);
+      setFeedback(res.data.data || []);
+      setPagination({
+        page: res.data.current_page || 1,
+        per_page: res.data.per_page || 15,
+        total: res.data.total || 0,
+        last_page: res.data.last_page || 1,
+      });
+    } catch (error) {
+      console.error('Failed to fetch feedback:', error);
+      toast.error('Failed to load feedback');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openDetailModal = (feedbackItem) => {
+    setSelectedFeedback(feedbackItem);
+    setIsDetailOpen(true);
+  };
+
+  const handleFeedbackUpdate = () => {
+    fetchFeedback();
+  };
+
+  // Memoized sorted data
+  const sortedFeedback = useMemo(() => {
+    if (!sortConfig.field) {
+      return feedback;
+    }
+
+    return [...feedback].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortConfig.field) {
+        case 'description':
+          aValue = a.description?.toLowerCase() || '';
+          bValue = b.description?.toLowerCase() || '';
+          break;
+        case 'name':
+          aValue = a.name?.toLowerCase() || '';
+          bValue = b.name?.toLowerCase() || '';
+          break;
+        case 'views':
+          aValue = a.views || 0;
+          bValue = b.views || 0;
+          break;
+        case 'comments':
+          aValue = a.comments_count || 0;
+          bValue = b.comments_count || 0;
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [feedback, sortConfig]);
+
+  const handleSort = (field) => {
+    setSortConfig((prev) => {
+      if (prev.field === field) {
+        return {
+          field,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      return { field, direction: 'asc' };
+    });
+  };
+
+  const statusOptions = [
+    { value: 'new', label: 'New' },
+    { value: 'in_review', label: 'In Review' },
+    { value: 'assigned', label: 'Assigned' },
+    { value: 'resolved', label: 'Resolved' },
+  ];
+
+  const clearFilters = () => {
+    setSearch('');
+    setStatus('');
+  };
+
+  const hasActiveFilters = search || status;
+
+  const toggleSelectItem = (id) => {
+    setSelectedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.size === sortedFeedback.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(sortedFeedback.map((item) => item.id)));
+    }
+  };
+
+  const isAllSelected =
+    sortedFeedback.length > 0 && selectedItems.size === sortedFeedback.length;
+  const isIndeterminate =
+    selectedItems.size > 0 && selectedItems.size < sortedFeedback.length;
+  const selectAllRef = useRef(null);
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      const input = selectAllRef.current.querySelector('input[type="checkbox"]');
+      if (input) {
+        input.indeterminate = isIndeterminate;
+      }
+    }
+  }, [isIndeterminate]);
+
   return (
     <div className="container">
       <div className="grid gap-5 lg:gap-7.5">
-      <div>
-        <h1 className="text-2xl font-semibold text-mono mb-2">Feedback</h1>
-        <p className="text-sm text-secondary-foreground">
-          View and manage feedback messages
-        </p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-mono mb-2">
+            Feedback {pagination.total > 0 && <span className="text-muted-foreground">({pagination.total})</span>}
+          </h1>
+          <p className="text-sm text-secondary-foreground">View and manage feedback messages</p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Feedback Messages</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-secondary-foreground">
-            Feedback messages will be displayed here.
-          </p>
-        </CardContent>
-      </Card>
+        {/* Search and Filters */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+              {/* Search */}
+              <div className="relative flex-1 w-full lg:w-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search feedback..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2 items-center w-full lg:w-auto">
+                <Combobox
+                  options={statusOptions}
+                  value={status}
+                  onValueChange={setStatus}
+                  placeholder="Status..."
+                  className="w-full sm:w-[150px]"
+                />
+                {hasActiveFilters && (
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
+                    <X className="size-4 me-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Feedback Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Feedbacks {pagination.total > 0 && `(${pagination.total})`}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="p-6 space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : feedback.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-secondary-foreground">No feedback found.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        ref={selectAllRef}
+                        checked={isAllSelected || isIndeterminate}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                        onClick={() => handleSort('description')}
+                      >
+                        Feedback
+                        {sortConfig.field === 'description' ? (
+                          sortConfig.direction === 'asc' ? (
+                            <ArrowUp className="size-3" />
+                          ) : (
+                            <ArrowDown className="size-3" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="size-3 opacity-40" />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                        onClick={() => handleSort('name')}
+                      >
+                        User
+                        {sortConfig.field === 'name' ? (
+                          sortConfig.direction === 'asc' ? (
+                            <ArrowUp className="size-3" />
+                          ) : (
+                            <ArrowDown className="size-3" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="size-3 opacity-40" />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                        onClick={() => handleSort('created_at')}
+                      >
+                        Created At
+                        {sortConfig.field === 'created_at' ? (
+                          sortConfig.direction === 'asc' ? (
+                            <ArrowUp className="size-3" />
+                          ) : (
+                            <ArrowDown className="size-3" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="size-3 opacity-40" />
+                        )}
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        className="flex items-center gap-1 hover:text-foreground transition-colors"
+                        onClick={() => handleSort('views')}
+                      >
+                        Views / Comments
+                        {sortConfig.field === 'views' ? (
+                          sortConfig.direction === 'asc' ? (
+                            <ArrowUp className="size-3" />
+                          ) : (
+                            <ArrowDown className="size-3" />
+                          )
+                        ) : (
+                          <ChevronsUpDown className="size-3 opacity-40" />
+                        )}
+                      </button>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedFeedback.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => openDetailModal(item)}
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedItems.has(item.id)}
+                          onCheckedChange={() => toggleSelectItem(item.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{item.description}</span>
+                            <span className="text-xs text-muted-foreground">#{item.id}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              className={`${STATUS_COLORS[item.status] || ''} text-xs`}
+                            >
+                              {item.status?.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                            {item.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {item.category}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {item.name ? (
+                          <div className="font-medium">{item.name}</div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {item.created_at ? (
+                          <div className="text-sm">
+                            {new Date(item.created_at).toLocaleDateString()}
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(item.created_at).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <Eye className="size-4 text-muted-foreground" />
+                            <span className="text-sm">{item.views || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageSquare className="size-4 text-muted-foreground" />
+                            <span className="text-sm">{item.comments_count || 0}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Pagination */}
+        {feedback.length > 0 && (
+          <DataPagination
+            pagination={pagination}
+            onPageChange={(newPage) => setPagination({ ...pagination, page: newPage })}
+            onPerPageChange={(newPerPage) =>
+              setPagination({ ...pagination, per_page: newPerPage, page: 1 })
+            }
+          />
+        )}
+
+        {/* Feedback Detail Modal */}
+        <FeedbackDetailModal
+          open={isDetailOpen}
+          onOpenChange={setIsDetailOpen}
+          feedback={selectedFeedback}
+          onFeedbackUpdate={handleFeedbackUpdate}
+        />
       </div>
     </div>
   );

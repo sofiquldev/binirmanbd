@@ -1,0 +1,27 @@
+footer.wpo-site-footer {
+    background: #fff;
+    color: #3a3a3a;
+  }
+  .wpo-site-footer:before {
+    display: none;
+  }
+  
+  .wpo-site-footer li,
+  .wpo-site-footer .link-widget ul li a,
+  .wpo-site-footer .newsletter-widget p {
+    color: #555;
+  }
+  
+  .wpo-site-footer .newsletter-widget form input {
+    color: #333;
+    border-color: #555;
+  }
+  
+  .wpo-site-footer .wpo-lower-footer {
+    border-top-color: #555;
+  }
+  
+  .wpo-site-footer .wpo-lower-footer ul li a {
+    color: #ED6B37;
+  }
+  

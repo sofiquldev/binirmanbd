@@ -7,7 +7,7 @@
     {
       "title": "Dashboard",
       "icon": "LayoutGrid",
-      "path": "/candidate/dashboard",
+      "path": "/dashboard",
       "roles": ["candidate-admin"]
     },
     {
@@ -29,45 +29,9 @@
       "roles": ["team-member", "candidate-admin"]
     },
     {
-      "title": "Contacts",
-      "icon": "Users",
-      "path": "/candidate/contacts",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Knowledge",
-      "icon": "Book",
-      "path": "/candidate/knowledge",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Appointments",
-      "icon": "Calendar",
-      "path": "/candidate/appointments",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Announcements",
-      "icon": "Megaphone",
-      "path": "/candidate/announcements",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Events",
-      "icon": "CalendarCheck",
-      "path": "/candidate/events",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Polls",
-      "icon": "BarChart3",
-      "path": "/candidate/polls",
-      "roles": ["team-member", "candidate-admin"]
-    },
-    {
-      "title": "Engagement",
-      "icon": "BarChart3",
-      "path": "/candidate/engagement",
+      "title": "Manifestos",
+      "icon": "FileText",
+      "path": "/candidate/manifestos",
       "roles": ["team-member", "candidate-admin"]
     },
     {
@@ -78,7 +42,7 @@
       "title": "Dashboard",
       "icon": "LayoutGrid",
       "path": "/admin/dashboard",
-      "roles": ["super-admin"]
+      "roles": ["super-admin"]  
     },
     {
       "title": "Candidates",
@@ -104,37 +68,6 @@
           "title": "Constituencies",
           "path": "/admin/constituencies",
           "privileges": ["constituencies.view"]
-        }
-      ]
-    },
-    {
-      "title": "Feedback",
-      "icon": "MessageSquare",
-      "path": "/admin/feedback",
-      "privileges": ["feedback.view"]
-    },
-    {
-      "title": "Donations",
-      "icon": "Wallet",
-      "path": "/admin/donations",
-      "roles": ["super-admin"],
-      "privileges": ["donations.view"]
-    },
-    {
-      "title": "Manifestos",
-      "icon": "ScrollText",
-      "roles": ["super-admin"],
-      "privileges": ["manifestos.view"],
-      "children": [
-        {
-          "title": "All Manifestos",
-          "path": "/admin/manifestos",
-          "privileges": ["manifestos.view"]
-        },
-        {
-          "title": "Manifestos Ctegories",
-          "path": "/admin/manifestos/categories",
-          "privileges": ["manifestos.view"]
         }
       ]
     },

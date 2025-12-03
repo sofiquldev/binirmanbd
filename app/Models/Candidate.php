@@ -155,6 +155,15 @@ class Candidate extends Model
             ->withPivot('config', 'is_enabled', 'sort_order')
             ->withTimestamps();
     }
+
+    /**
+     * Many-to-many relationship with users
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'candidate_user')
+            ->withTimestamps();
+    }
 }
 
 

@@ -99,7 +99,7 @@ class CandidateController extends Controller
 
     public function show(Candidate $candidate)
     {
-        $candidate->load(['template', 'party', 'constituency', 'donations', 'contactMessages', 'events', 'appointments', 'manifestos.category']);
+        $candidate->load(['template', 'party', 'constituency', 'donations', 'contactMessages', 'events', 'appointments', 'manifestos.category', 'users']);
         return response()->json($candidate);
     }
 
@@ -192,6 +192,54 @@ class CandidateController extends Controller
         return response()->json([
             'available' => !$exists,
             'slug' => $slug,
+        ]);
+    }
+
+    /**
+     * Sync users assigned to a candidate
+     */
+    public function syncUsers(Request $request, Candidate $candidate)
+    {
+        $validated = $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $candidate->users()->sync($validated['user_ids']);
+
+        $candidate->load('users');
+
+        return response()->json([
+            'message' => 'Users assigned successfully',
+            'candidate' => $candidate,
+        ]);
+    }
+
+    /**
+     * Get all candidates assigned to the authenticated user
+     */
+    public function myCandidates(Request $request)
+    {
+        $user = $request->user();
+        
+        // Get candidates from both relationships (backward compatibility + many-to-many)
+        $candidates = collect();
+        
+        // From many-to-many relationship
+        if ($user->candidates) {
+            $candidates = $candidates->merge($user->candidates);
+        }
+        
+        // From single candidate_id (backward compatibility)
+        if ($user->candidate) {
+            $candidates = $candidates->push($user->candidate);
+        }
+        
+        // Remove duplicates by ID
+        $candidates = $candidates->unique('id')->values();
+
+        return response()->json([
+            'data' => $candidates,
         ]);
     }
 }

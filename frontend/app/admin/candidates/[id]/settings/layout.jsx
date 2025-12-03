@@ -3,13 +3,14 @@
 import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { User, DollarSign, Layout, FileText, ChevronRight } from 'lucide-react';
+import { User, DollarSign, Layout, FileText, Users, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const SIDEBAR_ITEMS = [
   { id: 'profile', label: 'Profile', icon: User, path: 'profile' },
   { id: 'donation', label: 'Donation', icon: DollarSign, path: 'donation' },
   { id: 'template', label: 'Template', icon: Layout, path: 'template' },
+  { id: 'users', label: 'Users', icon: Users, path: 'users' },
   { id: 'page-management', label: 'Page Management', icon: FileText, path: 'page-management' },
 ];
 

@@ -54,8 +54,20 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Single candidate relationship (backward compatibility)
+     */
     public function candidate()
     {
         return $this->belongsTo(Candidate::class);
+    }
+
+    /**
+     * Many-to-many relationship with candidates
+     */
+    public function candidates()
+    {
+        return $this->belongsToMany(Candidate::class, 'candidate_user')
+            ->withTimestamps();
     }
 }

@@ -218,14 +218,19 @@ class DonationController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $donation = Donation::with([
+        $donationQuery = Donation::with([
             'candidate:id,name,name_bn,slug',
             'candidate.party:id,name,name_bn',
             'candidate.constituency:id,name,name_bn',
             'creator:id,name,email',
-        ])
-            ->where('tenant_id', tenant('id'))
-            ->findOrFail($id);
+        ]);
+
+        // Scope by tenant when tenancy is initialised; otherwise allow central access
+        if (tenant('id')) {
+            $donationQuery->where('tenant_id', tenant('id'));
+        }
+
+        $donation = $donationQuery->findOrFail($id);
 
         return response()->json($donation);
     }
@@ -235,7 +240,14 @@ class DonationController extends Controller
      */
     public function update(Request $request, $id): JsonResponse
     {
-        $donation = Donation::where('tenant_id', tenant('id'))->findOrFail($id);
+        $donationQuery = Donation::query();
+
+        // Scope by tenant when tenancy is initialised; otherwise allow central access
+        if (tenant('id')) {
+            $donationQuery->where('tenant_id', tenant('id'));
+        }
+
+        $donation = $donationQuery->findOrFail($id);
 
         $data = $request->validate([
             'status' => ['required', Rule::in([
@@ -262,11 +274,25 @@ class DonationController extends Controller
 
     /**
      * Get candidate's donations
+     *
+     * Used by:
+     * - Admin panel (central app) - passes explicit candidate ID
+     * - Candidate panel - also passes explicit candidate ID
+     *
+     * In some contexts tenancy may not be initialised on this request,
+     * so we can't always safely require tenant('id') to be present.
      */
     public function getCandidateDonations(Request $request, $candidateId): JsonResponse
     {
-        $candidate = Candidate::where('tenant_id', tenant('id'))
-            ->findOrFail($candidateId);
+        // If tenancy is initialised, scope by tenant_id.
+        // Otherwise, fall back to a global lookup by ID so the central app works.
+        $candidateQuery = Candidate::query();
+
+        if (tenant('id')) {
+            $candidateQuery->where('tenant_id', tenant('id'));
+        }
+
+        $candidate = $candidateQuery->findOrFail($candidateId);
 
         $query = $candidate->donations();
 

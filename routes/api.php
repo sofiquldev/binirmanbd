@@ -49,7 +49,9 @@ Route::prefix('v1')->group(function () {
 
         // Candidates
         Route::get('/candidates/check-slug', [CandidateController::class, 'checkSlugAvailability']);
+        Route::get('/candidates/my-candidates', [CandidateController::class, 'myCandidates']);
         Route::apiResource('candidates', CandidateController::class);
+        Route::post('/candidates/{candidate}/sync-users', [CandidateController::class, 'syncUsers']);
         Route::get('/candidates/{candidate}/donations', [DonationController::class, 'getCandidateDonations']);
         Route::get('/candidates/{candidate}/donation-settings', [DonationController::class, 'getCandidateSettings']);
         Route::put('/candidates/{candidate}/donation-settings', [DonationController::class, 'updateCandidateSettings']);
