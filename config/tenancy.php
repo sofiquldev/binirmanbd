@@ -16,12 +16,13 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => [
-        '127.0.0.1',
-        'localhost',
-        'binirmanbd.test',
-        'binirmanbd.com',
-    ],
+    'central_domains' => array_filter(array_merge(
+        [
+            '127.0.0.1',
+            'localhost',
+        ],
+        env('CENTRAL_DOMAINS') ? explode(',', env('CENTRAL_DOMAINS')) : []
+    )),
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.
