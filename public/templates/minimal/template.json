@@ -5,7 +5,14 @@
   "description": "Political Campaign HTML5 Template - Modern and professional design for political candidates",
   "author": "Coderfleek",
   "preview_image": "thumb.jpg",
-  "entry_file": "index.html",
+  "entry_file": "layout.html",
+  "pages": {
+    "home": "pages/home.html",
+    "donate-form": "pages/donate-form.html",
+    "donate-qr": "pages/donate-qr.html",
+    "feedback-form": "pages/feedback-form.html",
+    "feedback-qr": "pages/feedback-qr.html"
+  },
   "assets_path": "assets",
   "variables": {
     "candidate_name": "{{candidate.name}}",

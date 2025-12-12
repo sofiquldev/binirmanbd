@@ -222,6 +222,7 @@ return new class extends Migration
             $table->string('author_designation_bn')->nullable();
             $table->text('quote');
             $table->text('content_bn')->nullable();
+            $table->string('photo_url')->nullable();
             $table->string('avatar_url')->nullable();
             $table->boolean('is_featured')->default(true);
             $table->timestamps();

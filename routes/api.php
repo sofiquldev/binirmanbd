@@ -74,6 +74,20 @@ Route::prefix('v1')->group(function () {
             Route::get('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'show']);
             Route::put('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'update']);
             Route::delete('/manifestos/{manifesto}', [\App\Http\Controllers\Api\ElectionManifestoController::class, 'destroy']);
+
+            // Landing page content (Page management)
+            Route::post('/page-content/upload', [\App\Http\Controllers\Api\CandidatePageContentController::class, 'upload']);
+            Route::get('/page-content', [\App\Http\Controllers\Api\CandidatePageContentController::class, 'show']);
+            Route::post('/page-content', [\App\Http\Controllers\Api\CandidatePageContentController::class, 'upsert']);
+            Route::put('/page-content', [\App\Http\Controllers\Api\CandidatePageContentController::class, 'upsert']);
+
+            // Testimonials
+            Route::post('/testimonials/upload', [\App\Http\Controllers\Api\TestimonialController::class, 'upload']);
+            Route::get('/testimonials', [\App\Http\Controllers\Api\TestimonialController::class, 'index']);
+            Route::post('/testimonials', [\App\Http\Controllers\Api\TestimonialController::class, 'store']);
+            Route::get('/testimonials/{testimonial}', [\App\Http\Controllers\Api\TestimonialController::class, 'show']);
+            Route::put('/testimonials/{testimonial}', [\App\Http\Controllers\Api\TestimonialController::class, 'update']);
+            Route::delete('/testimonials/{testimonial}', [\App\Http\Controllers\Api\TestimonialController::class, 'destroy']);
         });
 
         // Election Manifesto Categories

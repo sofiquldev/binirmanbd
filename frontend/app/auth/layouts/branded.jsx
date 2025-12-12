@@ -26,7 +26,7 @@ export function BrandedLayout({ children }) {
           <div className="flex flex-col p-8 lg:p-16 gap-4">
             <Link href="/">
               <img
-                src={toAbsoluteUrl('/media/app/mini-logo.svg')}
+                src={toAbsoluteUrl('/media/brand-logos/binirman-logo.png')}
                 className="h-[28px] max-w-none"
                 alt=""
               />

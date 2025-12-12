@@ -34,6 +34,7 @@ class Candidate extends Model
         'whatsapp_number',
         'translator_enabled',
         'supported_languages',
+        'default_locale',
     ];
 
     protected function casts(): array
@@ -122,6 +123,11 @@ class Candidate extends Model
     public function testimonials()
     {
         return $this->hasMany(Testimonial::class);
+    }
+
+    public function pageContent()
+    {
+        return $this->hasOne(CandidatePageContent::class);
     }
 
     public function donations()

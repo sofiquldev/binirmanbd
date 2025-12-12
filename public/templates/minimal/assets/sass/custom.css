@@ -2,6 +2,14 @@ footer.wpo-site-footer {
     background: #fff;
     color: #3a3a3a;
   }
+  footer.wpo-site-footer.footer-parallax {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    aspect-ratio: 16 / 7;
+    width: 100%;
+  }
   .wpo-site-footer:before {
     display: none;
   }
@@ -24,4 +32,26 @@ footer.wpo-site-footer {
   .wpo-site-footer .wpo-lower-footer ul li a {
     color: #ED6B37;
   }
-  
+  .wpo-fun-fact-wrap .suffix {
+    font-size: 0.7em;
+    transform: translateY(5%);
+  }
+  .wpo-fun-fact-section .right-bg {
+    background-color: #000;
+  }
+
+  /* Constrain logos */
+  .navbar-brand img,
+  .wpo-site-footer .navbar-brand img {
+    max-width: 250px;
+    max-height: 70px;
+    width: auto;
+    height: auto;
+  }
+
+  /* Parallax background helper */
+  .footer-parallax {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }

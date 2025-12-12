@@ -46,6 +46,11 @@ const getRootDomain = () => {
   return getHostnameFromUrl(url);
 };
 
+const languageOptions = [
+  { value: 'bn', label: 'Bangla (বাংলা)' },
+  { value: 'en', label: 'English' },
+];
+
 export default function CreateCandidatePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -66,6 +71,7 @@ export default function CreateCandidatePage() {
     campaign_goals: '',
     primary_domain: '',
     whatsapp_number: '',
+    default_locale: 'bn',
   });
   const [parties, setParties] = useState([]);
   const [constituencies, setConstituencies] = useState([]);
@@ -270,6 +276,27 @@ export default function CreateCandidatePage() {
                   placeholder="Select template"
                   searchPlaceholder="Search template..."
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="default_locale">Default Language</Label>
+                <Select
+                  value={formData.default_locale}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, default_locale: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select default language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languageOptions.map((lang) => (
+                      <SelectItem key={lang.value} value={lang.value}>
+                        {lang.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

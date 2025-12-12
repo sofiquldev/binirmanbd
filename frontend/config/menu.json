@@ -35,6 +35,12 @@
       "roles": ["team-member", "candidate-admin"]
     },
     {
+      "title": "Testimonials",
+      "icon": "MessageSquare",
+      "path": "/candidate/testimonials",
+      "roles": ["team-member", "candidate-admin"]
+    },
+    {
       "heading": "Admin",
       "roles": ["super-admin"]
     },

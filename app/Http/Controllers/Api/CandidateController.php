@@ -64,6 +64,9 @@ class CandidateController extends Controller
             'primary_domain' => 'nullable|string|max:255',
             'custom_domain' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:255',
+            'default_locale' => 'nullable|string|in:bn,en',
+            'supported_languages' => 'nullable|array',
+            'supported_languages.*' => 'in:bn,en',
         ]);
 
         // Handle image upload
@@ -124,6 +127,9 @@ class CandidateController extends Controller
             'primary_domain' => 'nullable|string|max:255',
             'custom_domain' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:255',
+            'default_locale' => 'nullable|string|in:bn,en',
+            'supported_languages' => 'nullable|array',
+            'supported_languages.*' => 'in:bn,en',
         ]);
 
         // Handle image upload

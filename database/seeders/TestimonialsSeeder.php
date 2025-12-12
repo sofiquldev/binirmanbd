@@ -53,7 +53,8 @@ class TestimonialsSeeder extends Seeder
                     'author_name_bn' => $testimonial['author_bn'],
                     'designation' => $testimonial['designation_en'],
                     'author_designation_bn' => $testimonial['designation_bn'],
-                    'avatar_url' => null,
+                    'photo_url' => '/templates/minimal/assets/images/testimonial/' . (($i % 3) + 1) . '.png',
+                    'avatar_url' => '/templates/minimal/assets/images/testimonial/thumb' . (($i % 3) + 1) . '.png',
                     'is_featured' => $i === 0,
                 ]);
             }

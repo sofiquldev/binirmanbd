@@ -110,6 +110,11 @@ function TabNavigation({ candidateId, activeTab, candidate, router }) {
         path: `/admin/candidates/${candidateId}/manifesto`,
       },
       {
+        value: 'testimonials',
+        label: 'Testimonials',
+        path: `/admin/candidates/${candidateId}/testimonials`,
+      },
+      {
         value: 'feedbacks',
         label: 'Feedbacks',
         path: `/admin/candidates/${candidateId}/feedbacks`,
@@ -311,6 +316,7 @@ export default function CandidateLayout({ children }) {
   // Determine active tab from pathname
   const activeTab = useMemo(() => {
     if (pathname?.includes('/settings')) return 'settings';
+    if (pathname?.endsWith('/testimonials')) return 'testimonials';
     if (pathname?.endsWith('/feedbacks')) return 'feedbacks';
     if (pathname?.endsWith('/donates')) return 'donates';
     if (pathname?.endsWith('/projects')) return 'projects';

@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('whatsapp_number')->nullable();
             $table->boolean('translator_enabled')->default(true);
             $table->json('supported_languages')->nullable();
+            $table->string('default_locale', 10)->default('bn');
             $table->timestamps();
         });
     }

@@ -10,6 +10,7 @@ import { Layout, Save, LoaderCircleIcon, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCandidatesStore } from '@/stores/use-candidates-store';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function TemplateSettingsPage() {
   const params = useParams();
@@ -19,12 +20,19 @@ export default function TemplateSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [defaultLocale, setDefaultLocale] = useState('bn');
+
+  const languageOptions = [
+    { value: 'bn', label: 'Bangla (বাংলা)' },
+    { value: 'en', label: 'English' },
+  ];
 
   useEffect(() => {
     if (candidateId) {
       fetchCandidate(candidateId).then(() => {
         if (candidate) {
           setSelectedTemplateId(candidate.template_id);
+          setDefaultLocale(candidate.default_locale || 'bn');
         }
         setLoading(false);
       });
@@ -34,6 +42,7 @@ export default function TemplateSettingsPage() {
   useEffect(() => {
     if (candidate) {
       setSelectedTemplateId(candidate.template_id);
+      setDefaultLocale(candidate.default_locale || 'bn');
     }
   }, [candidate]);
 
@@ -52,19 +61,14 @@ export default function TemplateSettingsPage() {
   };
 
   const handleSave = async () => {
-    if (!selectedTemplateId) {
-      toast.error('Please select a template');
-      return;
-    }
-
     setSaving(true);
     try {
-      await updateCandidate(candidateId, { template_id: selectedTemplateId });
-      toast.success('Template updated successfully');
+      await updateCandidate(candidateId, { template_id: selectedTemplateId, default_locale: defaultLocale });
+      toast.success('Settings updated successfully');
       fetchCandidate(candidateId);
     } catch (error) {
       console.error('Failed to update template:', error);
-      toast.error('Failed to update template');
+      toast.error('Failed to update settings');
     } finally {
       setSaving(false);
     }
@@ -94,6 +98,29 @@ export default function TemplateSettingsPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Select a template for your candidate landing page. The template will determine the design and layout of your public-facing website.
             </p>
+            <div className="max-w-md">
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                Default Language
+              </label>
+              <Select
+                value={defaultLocale}
+                onValueChange={(value) => setDefaultLocale(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select default language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageOptions.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Visitors will see this language by default. They can still switch using URL parameters (e.g. ?lang=en).
+              </p>
+            </div>
           </div>
 
           {templates.length === 0 ? (
